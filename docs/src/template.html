@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{meta_title}}</title>
+<meta name="description" content="{{meta_desc}}">
+<meta property="og:title" content="Li Fòli – {{tagline}}">
+<meta property="og:description" content="{{meta_desc}}">
+<meta property="og:image" content="{{B}}img/drone-casale.jpg">
+{{hreflang}}
+<link rel="icon" href="{{B}}img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{B}}style.css">
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap">
+    <a href="#top" class="brand">Li Fòli</a>
+    <button class="burger" id="burger" aria-label="Menu">☰</button>
+    <ul id="menu">
+      <li><a href="#casale">{{nav_house}}</a></li>
+      <li><a href="#camere">{{nav_rooms}}</a></li>
+      <li><a href="#natura">{{nav_nature}}</a></li>
+      <li><a href="#dintorni">{{nav_around}}</a></li>
+      <li><a href="#contatti" class="btn btn-light">{{nav_book}}</a></li>
+      <li class="lang">{{langlinks}}</li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <video class="bg" autoplay muted loop playsinline preload="auto" poster="{{B}}img/drone-casale.jpg">
+    <source src="{{B}}video/hero.mp4" type="video/mp4">
+  </video>
+  <div class="content">
+    <img class="logo" src="{{B}}img/logo-circle-white.png" alt="Li Fòli – {{tagline}}">
+    <p>Balaiana · Luogosanto · Gallura</p>
+    <a href="#contatti" class="btn btn-light">{{cta_avail}}</a>
+  </div>
+  <div class="scroll-hint">{{scroll}} ↓</div>
+</header>
+
+<section class="intro" id="casale">
+  <div class="wrap">
+    <div class="grid">
+      <div class="reveal">
+        <span class="eyebrow">{{intro_eyebrow}}</span>
+        <h2>{{intro_title}}</h2>
+        <p class="lead">{{intro_lead}}</p>
+        <p>{{intro_p1}}</p>
+        <p>{{intro_p2}}</p>
+      </div>
+      <div class="photos reveal">
+        <img class="a" src="{{B}}img/casale-colline.jpg" alt="{{alt_hills}}">
+        <img class="b" src="{{B}}img/buganvillea.jpg" alt="{{alt_bougain}}">
+      </div>
+    </div>
+
+    <div class="features reveal">
+      <div class="feature">
+        <svg viewBox="0 0 48 48"><path d="M24 6c-8 8-12 15-12 22a12 12 0 0 0 24 0c0-7-4-14-12-22z"/><path d="M24 42V22"/></svg>
+        <h4>{{f1_t}}</h4><p>{{f1_d}}</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 48 48"><path d="M6 22 24 8l18 14"/><path d="M10 19v21h28V19"/><path d="M20 40V28h8v12"/></svg>
+        <h4>{{f2_t}}</h4><p>{{f2_d}}</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="8"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l4 4M34 34l4 4M10 38l4-4M34 14l4-4"/></svg>
+        <h4>{{f3_t}}</h4><p>{{f3_d}}</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 48 48"><path d="M4 32c5-4 9-4 14 0s9 4 14 0 9-4 12-2"/><path d="M4 40c5-4 9-4 14 0s9 4 14 0 9-4 12-2"/><path d="M16 22l8-12 8 12"/></svg>
+        <h4>{{f4_t}}</h4><p>{{f4_d}}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="camere">
+  <div class="wrap">
+    <div class="rooms-head reveal">
+      <span class="eyebrow">{{rooms_eyebrow}}</span>
+      <h2>{{rooms_title}}</h2>
+      <p>{{rooms_sub}}</p>
+    </div>
+
+    <article class="room-feature reveal">
+      <div class="gallery" data-gallery="ginestra">
+        <img src="{{B}}img/ginestra-1.jpg" alt="Suite Ginestra">
+        <img src="{{B}}img/ginestra-2.jpg" alt="Suite Ginestra">
+        <img src="{{B}}img/ginestra-4.jpg" alt="Suite Ginestra">
+        <img src="{{B}}img/ginestra-3.jpg" alt="Suite Ginestra" hidden>
+        <img src="{{B}}img/ginestra-5.jpg" alt="Suite Ginestra" hidden>
+      </div>
+      <div class="info">
+        <span class="eyebrow">{{suite_eyebrow}}</span>
+        <h3>Suite Ginestra</h3>
+        <p>{{suite_desc}}</p>
+        <div class="tags">{{suite_tags}}</div>
+        <a href="#contatti" class="btn btn-solid" data-room="Suite Ginestra">{{cta_request}}</a>
+      </div>
+    </article>
+
+    <div class="room-grid">
+      <article class="room-card reveal">
+        <div class="ph" data-gallery="malvarosa">
+          <img src="{{B}}img/malvarosa-1.jpg" alt="Malvarosa">
+          <img src="{{B}}img/malvarosa-2.jpg" alt="Malvarosa" hidden><img src="{{B}}img/malvarosa-3.jpg" alt="Malvarosa" hidden>
+          <img src="{{B}}img/malvarosa-4.jpg" alt="Malvarosa" hidden><img src="{{B}}img/malvarosa-5.jpg" alt="Malvarosa" hidden>
+          <span class="count">5 {{photos}}</span>
+        </div>
+        <div class="body"><h3>Malvarosa</h3><span class="name-meaning">{{double_room}}</span><p>{{malva_desc}}</p></div>
+      </article>
+      <article class="room-card reveal">
+        <div class="ph" data-gallery="euforbia">
+          <img src="{{B}}img/euforbia-1.jpg" alt="Euforbia">
+          <img src="{{B}}img/euforbia-2.jpg" alt="Euforbia" hidden><img src="{{B}}img/euforbia-3.jpg" alt="Euforbia" hidden>
+          <img src="{{B}}img/euforbia-4.jpg" alt="Euforbia" hidden><img src="{{B}}img/euforbia-5.jpg" alt="Euforbia" hidden>
+          <img src="{{B}}img/euforbia-6.jpg" alt="Euforbia" hidden>
+          <span class="count">6 {{photos}}</span>
+        </div>
+        <div class="body"><h3>Euforbia</h3><span class="name-meaning">{{double_room}}</span><p>{{euforbia_desc}}</p></div>
+      </article>
+      <article class="room-card reveal">
+        <div class="ph empty"><span>{{photos_soon}}</span></div>
+        <div class="body"><h3>Erica</h3><span class="name-meaning">{{double_room}}</span><p>{{erica_desc}}</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="band">
+  <video autoplay muted loop playsinline preload="metadata" poster="{{B}}video/anatre-poster.jpg"><source src="{{B}}video/anatre.mp4" type="video/mp4"></video>
+  <blockquote>“{{quote}}”<cite>Li Fòli · {{tagline}}</cite></blockquote>
+</div>
+
+<section class="nature" id="natura">
+  <div class="wrap">
+    <div class="head reveal">
+      <div>
+        <span class="eyebrow">{{nature_eyebrow}}</span>
+        <h2>{{nature_title}}</h2>
+      </div>
+      <p>{{nature_p}}</p>
+    </div>
+    <div class="masonry" data-gallery="natura">
+      <figure class="reveal"><img src="{{B}}img/piscina.jpg" alt="{{cap_pool}}"><figcaption>{{cap_pool}}</figcaption></figure>
+      <figure class="reveal"><img src="{{B}}img/cortile.jpg" alt="{{cap_court}}"><figcaption>{{cap_court}}</figcaption></figure>
+      <figure class="reveal"><img src="{{B}}img/granito-scolpito.jpg" alt="{{cap_granite}}"><figcaption>{{cap_granite}}</figcaption></figure>
+      <figure class="reveal"><img src="{{B}}img/sughere-muretto.jpg" alt="{{cap_cork}}"><figcaption>{{cap_cork}}</figcaption></figure>
+      <figure class="reveal"><img src="{{B}}img/casale-luna.jpg" alt="{{cap_moon}}"><figcaption>{{cap_moon}}</figcaption></figure>
+      <figure class="reveal"><img src="{{B}}img/acqua.jpg" alt="{{cap_water}}"><figcaption>{{cap_water}}</figcaption></figure>
+      <figure class="reveal"><img src="{{B}}img/casale-collina.jpg" alt="{{cap_hill}}"><figcaption>{{cap_hill}}</figcaption></figure>
+      <figure class="reveal"><img src="{{B}}img/passaggio-rocce.jpg" alt="{{cap_rocks}}"><figcaption>{{cap_rocks}}</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="around" id="dintorni">
+  <div class="wrap">
+    <div class="reveal" style="max-width:720px">
+      <span class="eyebrow">{{around_eyebrow}}</span>
+      <h2>{{around_title}}</h2>
+      <p style="color:var(--muted)">{{around_sub}}</p>
+    </div>
+    <div class="grid">
+      <div class="place reveal"><span class="dist">{{d_few}}</span><h3>Luogosanto</h3><p>{{p_luogo}}</p></div>
+      <div class="place reveal"><span class="dist">~ 30 min</span><h3>Palau · La Maddalena</h3><p>{{p_palau}}</p></div>
+      <div class="place reveal"><span class="dist">~ 30 min</span><h3>Santa Teresa Gallura</h3><p>{{p_steresa}}</p></div>
+      <div class="place reveal"><span class="dist">~ 20 min</span><h3>Tempio Pausania</h3><p>{{p_tempio}}</p></div>
+      <div class="place reveal"><span class="dist">~ 40 min</span><h3>Costa Smeralda</h3><p>{{p_costa}}</p></div>
+      <div class="place reveal"><span class="dist">~ 40 min</span><h3>Olbia</h3><p>{{p_olbia}}</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contatti">
+  <div class="wrap">
+    <div class="grid">
+      <div class="info reveal">
+        <span class="eyebrow">{{contact_eyebrow}}</span>
+        <h2>{{contact_title}}</h2>
+        <p>{{contact_p}}</p>
+        <div class="line">
+          <svg viewBox="0 0 24 24"><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <div><strong>Li Fòli – Casale di Campagna</strong><br>Località Balaiana<br>07020 Luogosanto (SS), {{sardinia}}</div>
+        </div>
+        <div class="line">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="m3 6 9 7 9-7"/></svg>
+          <div><a href="mailto:info@lifolicasaledicampagna.it">info@lifolicasaledicampagna.it</a></div>
+        </div>
+        <div class="line">
+          <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+          <div><!-- TODO telefono -->{{phone}}: <em>{{tbd}}</em></div>
+        </div>
+        <iframe class="map" loading="lazy" title="Map" src="https://www.google.com/maps?q=Balaiana,+Luogosanto+SS&z=13&hl={{lang}}&output=embed"></iframe>
+      </div>
+
+      <form class="reveal" id="form" action="mailto:info@lifolicasaledicampagna.it" method="post" enctype="text/plain">
+        <h3>{{form_title}}</h3>
+        <div class="row">
+          <div><label for="nome">{{f_name}}</label><input id="nome" name="nome" required placeholder="{{f_name_ph}}"></div>
+          <div><label for="email">Email</label><input id="email" name="email" type="email" required placeholder="name@email.com"></div>
+        </div>
+        <div class="row">
+          <div><label for="arrivo">{{f_in}}</label><input id="arrivo" name="arrivo" type="date" required></div>
+          <div><label for="partenza">{{f_out}}</label><input id="partenza" name="partenza" type="date" required></div>
+        </div>
+        <div class="row">
+          <div><label for="ospiti">{{f_guests}}</label><select id="ospiti" name="ospiti"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5+</option></select></div>
+          <div><label for="camera">{{f_room}}</label><select id="camera" name="camera"><option value="">{{f_nopref}}</option><option>Suite Ginestra</option><option>Malvarosa</option><option>Erica</option><option>Euforbia</option></select></div>
+        </div>
+        <div><label for="msg">{{f_msg}}</label><textarea id="msg" name="messaggio" rows="4" placeholder="{{f_msg_ph}}"></textarea></div>
+        <button class="btn" type="submit">{{f_send}}</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <img src="{{B}}img/logo.jpg" alt="Li Fòli">
+    <div>© <span id="y"></span> Li Fòli – Casale di Campagna · Balaiana, Luogosanto (SS)</div>
+    <div class="legal">Fratelli Azara S.r.l.s. · P.IVA IT02906110909<br><!-- TODO CIN -->CIN: <em>{{tbd}}</em></div>
+  </div>
+</footer>
+
+<div class="lb" id="lb"><button class="x" aria-label="×">×</button><button class="prev" aria-label="‹">‹</button><img alt=""><button class="next" aria-label="›">›</button></div>
+
+<script>
+  document.getElementById('y').textContent = new Date().getFullYear();
+  // Primo accesso alla versione italiana: proponi la lingua del browser
+  (function(){
+    var LANGS = ['en','es','de'], k = 'lifoli-lang';
+    document.querySelectorAll('.lang a').forEach(function(a){ a.addEventListener('click', function(){ try{localStorage.setItem(k, a.dataset.l)}catch(e){} }); });
+    if ('{{lang}}' !== 'it') return;
+    var saved; try{ saved = localStorage.getItem(k) }catch(e){}
+    var nav = (navigator.language || 'it').slice(0,2);
+    if (!saved && LANGS.indexOf(nav) > -1) location.replace(nav + '/index.html' + location.hash);
+  })();
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 60), {passive:true});
+  const burger = document.getElementById('burger'), menu = document.getElementById('menu');
+  burger.onclick = () => { menu.classList.toggle('open'); burger.classList.toggle('open'); burger.textContent = menu.classList.contains('open') ? '×' : '☰'; };
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { menu.classList.remove('open'); burger.classList.remove('open'); burger.textContent = '☰'; }));
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  document.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => document.getElementById('camera').value = b.dataset.room));
+  const lb = document.getElementById('lb'), lbImg = lb.querySelector('img'); let set = [], idx = 0;
+  const show = i => { idx = (i + set.length) % set.length; lbImg.src = set[idx].src; lbImg.alt = set[idx].alt; };
+  document.querySelectorAll('[data-gallery] img, .room-card .ph img').forEach(img => img.addEventListener('click', () => {
+    const g = img.closest('[data-gallery]'); set = g ? [...g.querySelectorAll('img')] : [img];
+    show(set.indexOf(img)); lb.classList.add('open');
+  }));
+  lb.querySelector('.x').onclick = () => lb.classList.remove('open');
+  lb.querySelector('.prev').onclick = e => { e.stopPropagation(); show(idx - 1); };
+  lb.querySelector('.next').onclick = e => { e.stopPropagation(); show(idx + 1); };
+  lb.onclick = e => { if (e.target === lb) lb.classList.remove('open'); };
+  addEventListener('keydown', e => { if (!lb.classList.contains('open')) return; if (e.key === 'Escape') lb.classList.remove('open'); if (e.key === 'ArrowLeft') show(idx - 1); if (e.key === 'ArrowRight') show(idx + 1); });
+</script>
+</body>
+</html>

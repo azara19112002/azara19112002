@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="it">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Li Fòli · Gestionale</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ee; --panel:#fff; --ink:#26241f; --muted:#7a7468; --line:#e6e1d5;
+  --olive:#5d6b32; --olive-d:#435022; --olive-l:#eef0e3; --terra:#b8643f;
+  --red:#b3392f; --red-l:#f8e3e0; --amber:#a86a00; --amber-l:#fbefd6; --green:#2f7a4a; --green-l:#e1f1e6; --blue:#2f5f8a; --blue-l:#e2ecf6;
+  --serif:"Cormorant Garamond",Georgia,serif; --sans:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--olive-d)}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+aside{background:#2f3519;color:#dcdccb;padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto}
+aside .brand{font-family:var(--serif);font-size:1.7rem;color:#fff;padding:0 10px 2px;font-style:italic}
+aside .sub{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#a9ad8c;padding:0 10px 18px}
+aside nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:#dcdccb;text-decoration:none;margin-bottom:2px;cursor:pointer}
+aside nav a:hover{background:rgba(255,255,255,.06)}
+aside nav a.on{background:rgba(255,255,255,.12);color:#fff}
+aside nav .grp{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#8d9270;margin:16px 10px 6px}
+aside nav .ic{width:18px;text-align:center;opacity:.9}
+aside nav .badge{margin-left:auto;background:var(--terra);color:#fff;border-radius:10px;font-size:.7rem;padding:1px 7px}
+aside .me{margin-top:22px;padding:12px 10px;border-top:1px solid rgba(255,255,255,.1);font-size:.8rem;color:#b9bca2}
+aside .me b{color:#fff;display:block;font-weight:500}
+main{padding:26px 32px 60px;min-width:0}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.top h1{font-family:var(--serif);font-weight:500;font-size:2.1rem;margin:0;flex:1;min-width:200px}
+.burger{display:none;background:none;border:0;font-size:1.5rem;cursor:pointer}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:#cfc8b6}
+.btn.pri{background:var(--olive);border-color:var(--olive);color:#fff}
+.btn.pri:hover{background:var(--olive-d)}
+.btn.danger{color:var(--red);border-color:#e9c3be}
+.btn.sm{padding:5px 10px;font-size:.82rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h3{margin:0 0 12px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.kpi .v{font-size:1.6rem;font-weight:600;margin-top:4px}
+.kpi .l{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.kpi .s{font-size:.78rem;color:var(--muted);margin-top:2px}
+.pos{color:var(--green)} .neg{color:var(--red)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border:0}
+.list .when{font-size:.78rem;color:var(--muted);min-width:76px}
+.list .grow{flex:1;min-width:0}
+.empty{color:var(--muted);font-style:italic;padding:8px 0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.toolbar input,.toolbar select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff}
+.toolbar input[type=search]{min-width:220px;flex:1;max-width:360px}
+.tablewrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;background:#fbfaf6;position:sticky;top:0}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#faf8f2}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.wrap{white-space:normal;min-width:200px}
+tfoot td{font-weight:600;background:#fbfaf6}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:500;background:#efece4;color:#5b564b}
+.pill.green{background:var(--green-l);color:var(--green)} .pill.red{background:var(--red-l);color:var(--red)}
+.pill.amber{background:var(--amber-l);color:var(--amber)} .pill.blue{background:var(--blue-l);color:var(--blue)}
+.pill.olive{background:var(--olive-l);color:var(--olive-d)}
+.muted{color:var(--muted)}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(30,28,20,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:50}
+.ov.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:min(760px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal header{display:flex;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line)}
+.modal header h2{margin:0;font-family:var(--serif);font-weight:500;font-size:1.6rem;flex:1}
+.modal .body{padding:20px 22px;display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.modal footer{display:flex;gap:8px;padding:14px 22px;border-top:1px solid var(--line);background:#fbfaf6;border-radius:0 0 14px 14px}
+.modal footer .sp{flex:1}
+.f{display:flex;flex-direction:column;gap:5px}
+.f.full{grid-column:1/-1}
+.f label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.f input,.f select,.f textarea{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus{outline:2px solid var(--olive-l);border-color:var(--olive)}
+.f .hint{font-size:.75rem;color:var(--muted)}
+.f.chk{flex-direction:row;align-items:center;gap:8px}
+.f.chk input{width:auto}
+.meta{grid-column:1/-1;font-size:.75rem;color:var(--muted)}
+/* calendar */
+.cal{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+.cal table{border-collapse:separate;border-spacing:0}
+.cal th,.cal td{padding:0;border-right:1px solid #f0ece2;border-bottom:1px solid var(--line);min-width:34px;height:42px;text-align:center;font-size:.72rem}
+.cal th{height:44px;line-height:1.2}
+.cal th.room,.cal td.room{position:sticky;left:0;background:#fbfaf6;z-index:2;min-width:120px;text-align:left;padding:0 12px;font-size:.85rem;font-weight:500}
+.cal th.we{color:var(--terra)}
+.cal th.today{background:var(--olive-l);color:var(--olive-d)}
+.cal td.closed{background:repeating-linear-gradient(45deg,#f4f1ea,#f4f1ea 4px,#ebe6da 4px,#ebe6da 8px)}
+.cal td{position:relative}
+.cal .bk{position:absolute;top:7px;bottom:7px;left:50%;z-index:1;border-radius:6px;color:#fff;font-size:.72rem;padding:0 6px;display:flex;align-items:center;overflow:hidden;white-space:nowrap;cursor:pointer;background:var(--olive)}
+.cal .bk.Opzione{background:#b7a46b}.cal .bk.Check-in{background:var(--blue)}.cal .bk.Check-out{background:#8d8a80}
+/* chart */
+.bars{display:flex;align-items:flex-end;gap:8px;height:180px;padding-top:10px}
+.bars .m{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bars .pair{display:flex;gap:2px;align-items:flex-end;height:100%;width:100%;justify-content:center}
+.bars .b{width:42%;border-radius:4px 4px 0 0;min-height:1px}
+.bars .in{background:var(--olive)} .bars .out{background:var(--terra)}
+.bars .lab{font-size:.68rem;color:var(--muted)}
+.legend{display:flex;gap:14px;font-size:.78rem;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.hbar{display:grid;grid-template-columns:170px 1fr 90px;gap:10px;align-items:center;padding:5px 0;font-size:.85rem}
+.hbar .track{background:#f1eee6;border-radius:4px;height:10px}
+.hbar .fill{background:var(--terra);height:100%;border-radius:4px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#2f3519;color:#fff;padding:11px 18px;border-radius:10px;z-index:99;display:none;max-width:90vw}
+.toast.err{background:var(--red)}
+.demo{background:var(--amber-l);color:#6b4a00;border:1px solid #efd9a6;padding:9px 14px;border-radius:10px;margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.85rem}
+.demo select{border:1px solid #e2c98a;border-radius:6px;padding:3px 6px;background:#fff}
+.loading{display:grid;place-items:center;height:100vh;font-family:var(--serif);font-size:1.6rem;color:var(--olive)}
+.tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.tabs a{padding:9px 14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;text-decoration:none}
+.tabs a.on{color:var(--ink);border-color:var(--olive)}
+@media (max-width:1000px){
+  .kpis{grid-template-columns:repeat(2,1fr)} .grid2,.grid3{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  aside{position:fixed;left:0;top:0;width:260px;z-index:40;transform:translateX(-100%);transition:.25s}
+  aside.open{transform:none;box-shadow:0 0 40px rgba(0,0,0,.3)}
+  .burger{display:block}
+  main{padding:16px 14px 60px}
+  .modal .body{grid-template-columns:1fr}
+  .hbar{grid-template-columns:110px 1fr 80px}
+  .toolbar input[type=search]{min-width:0;width:100%;max-width:none}
+}
+</style>
+</head>
+<body>
+<div id="root"><div class="loading">Li Fòli…</div></div>
+<div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURAZIONE MODULI
+   ===================================================================== */
+const CAT_USCITE = ['Utenze (luce, acqua, gas)','Pulizie e lavanderia','Manutenzioni','Arredi e attrezzature','Forniture e consumabili','Colazioni e alimentari','Commissioni OTA','Software e abbonamenti','Marketing e sito web','Commercialista e consulenze','Assicurazioni','Tasse e imposte','Rate finanziamenti','Personale','Trasporti e carburante','Banca e commissioni','Altro'];
+const CAT_ENTRATE = ['Soggiorni','Extra e servizi','Tassa di soggiorno incassata','Contributi e incentivi','Rimborsi','Apporti soci','Altro'];
+const CANALI = ['Diretto','Sito web','Booking.com','Airbnb','Expedia','Amenitiz','Telefono / WhatsApp','Agenzia','Altro'];
+const METODI = ['Bonifico','Carta / POS','Contanti','Revolut','PayPal','Addebito diretto (RID)','Assegno','Altro'];
+
+const COLORS = {
+  stato: {'Confermata':'green','Opzione':'amber','Check-in':'blue','Check-out':'','Cancellata':'red',
+          'Da fare':'amber','In corso':'blue','Fatto':'green','Da pagare':'red','Pagata':'green','Da incassare':'amber','Incassata':'green',
+          'Aperta':'green','Chiusa':'red','Attivo':'green','Estinto':''},
+  pagamento: {'Da pagare':'red','Acconto':'amber','Saldato':'green'},
+  tipo: {'Entrata':'green','Uscita':'red','Emessa':'green','Ricevuta':'olive'},
+  ruolo: {'admin':'olive','socio':'green','collaboratore':'blue','contabile':'amber'}
+};
+
+const M = {
+  prenotazioni: {
+    title:'Prenotazioni', single:'prenotazione', icon:'🛎️', dateField:'arrivo', sort:'desc',
+    fields:[
+      {k:'ospite',l:'Ospite',t:'text',req:1},
+      {k:'camera',l:'Camera',t:'room',req:1},
+      {k:'arrivo',l:'Arrivo',t:'date',req:1},
+      {k:'partenza',l:'Partenza',t:'date',req:1},
+      {k:'adulti',l:'Adulti',t:'number',def:2},
+      {k:'bambini',l:'Bambini',t:'number',def:0},
+      {k:'email',l:'Email',t:'email'},
+      {k:'telefono',l:'Telefono',t:'tel'},
+      {k:'canale',l:'Canale',t:'select',o:CANALI,def:'Diretto'},
+      {k:'stato',l:'Stato',t:'select',o:['Opzione','Confermata','Check-in','Check-out','Cancellata'],def:'Confermata'},
+      {k:'totale',l:'Totale soggiorno (€)',t:'money'},
+      {k:'acconto',l:'Acconto ricevuto (€)',t:'money'},
+      {k:'commissione',l:'Commissione OTA (€)',t:'money'},
+      {k:'tassa_soggiorno',l:'Tassa di soggiorno (€)',t:'money'},
+      {k:'pagamento',l:'Pagamento',t:'select',o:['Da pagare','Acconto','Saldato'],def:'Da pagare'},
+      {k:'alloggiati',l:'Comunicata ad Alloggiati Web',t:'bool'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    computed:{ notti: r => nights(r.arrivo,r.partenza) },
+    cols:['arrivo','partenza','ospite','camera','notti','canale','stato','pagamento','totale'],
+    filters:['stato','camera','canale'],
+    sum:['totale','commissione','tassa_soggiorno'],
+    validate:r => r.partenza<=r.arrivo ? 'La partenza deve essere dopo l\'arrivo' : overlap(r),
+  },
+  camere: {
+    title:'Camere', single:'camera', icon:'🛏️', sort:'nome',
+    fields:[
+      {k:'nome',l:'Nome',t:'text',req:1},
+      {k:'tipo',l:'Tipologia',t:'select',o:['Matrimoniale','Doppia','Suite','Tripla','Quadrupla','Singola','Appartamento']},
+      {k:'posti_letto',l:'Posti letto',t:'number'},
+      {k:'mq',l:'Superficie (m²)',t:'number'},
+      {k:'prezzo_base',l:'Prezzo base a notte (€)',t:'money'},
+      {k:'stato',l:'Stato',t:'select',o:['Attivo','Non attivo'],def:'Attivo'},
+      {k:'dotazioni',l:'Dotazioni',t:'textarea',hint:'Es. bagno privato, aria condizionata, TV, frigobar…'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    cols:['nome','tipo','posti_letto','mq','prezzo_base','stato'],
+  },
+  stagioni: {
+    title:'Stagioni e tariffe', single:'periodo', icon:'📆', dateField:'dal', sort:'asc',
+    intro:'Definisci i periodi di apertura e chiusura e le tariffe stagionali. Il calendario mostra in grigio i giorni chiusi.',
+    fields:[
+      {k:'nome',l:'Nome periodo',t:'text',req:1,hint:'Es. Alta stagione 2027'},
+      {k:'camera',l:'Camera',t:'room',all:1,def:'Tutte'},
+      {k:'dal',l:'Dal',t:'date',req:1},
+      {k:'al',l:'Al',t:'date',req:1},
+      {k:'stato',l:'Apertura',t:'select',o:['Aperta','Chiusa'],def:'Aperta'},
+      {k:'prezzo_notte',l:'Prezzo a notte (€)',t:'money'},
+      {k:'soggiorno_minimo',l:'Soggiorno minimo (notti)',t:'number'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    cols:['nome','camera','dal','al','stato','prezzo_notte','soggiorno_minimo'],
+    filters:['stato','camera'],
+  },
+  pulizie: {
+    title:'Pulizie e manutenzioni', single:'attività', icon:'🧹', dateField:'data', sort:'asc',
+    fields:[
+      {k:'data',l:'Data',t:'date',req:1,def:()=>today()},
+      {k:'camera',l:'Camera / area',t:'room',all:1,extra:['Aree comuni','Piscina','Giardino','Lavanderia']},
+      {k:'tipo',l:'Tipo',t:'select',o:['Cambio ospite','Riassetto','Pulizia profonda','Biancheria / lavanderia','Manutenzione','Giardino e piscina','Altro'],def:'Cambio ospite'},
+      {k:'assegnato_a',l:'Assegnato a',t:'user'},
+      {k:'stato',l:'Stato',t:'select',o:['Da fare','In corso','Fatto'],def:'Da fare'},
+      {k:'costo',l:'Costo (€)',t:'money'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    cols:['data','camera','tipo','assegnato_a','stato','costo'],
+    filters:['stato','tipo','assegnato_a'],
+    sum:['costo'],
+  },
+  movimenti: {
+    title:'Entrate e uscite', single:'movimento', icon:'💶', dateField:'data', sort:'desc',
+    fields:[
+      {k:'data',l:'Data',t:'date',req:1,def:()=>today()},
+      {k:'tipo',l:'Tipo',t:'select',o:['Uscita','Entrata'],def:'Uscita',req:1},
+      {k:'categoria',l:'Categoria',t:'select',o:r=>r.tipo==='Entrata'?CAT_ENTRATE:CAT_USCITE,req:1},
+      {k:'importo',l:'Importo IVA inclusa (€)',t:'money',req:1},
+      {k:'descrizione',l:'Descrizione',t:'text',req:1,full:1},
+      {k:'controparte',l:'Cliente / fornitore',t:'text'},
+      {k:'iva_pct',l:'Aliquota IVA %',t:'select',o:['22','10','5','4','0','Esente'],def:'22'},
+      {k:'metodo',l:'Metodo di pagamento',t:'select',o:METODI},
+      {k:'conto',l:'Conto / carta',t:'text',hint:'Es. Revolut Domenico, conto aziendale…'},
+      {k:'pagato',l:'Pagato / incassato',t:'bool',def:'si'},
+      {k:'fattura_rif',l:'Rif. fattura',t:'text'},
+      {k:'allegato',l:'Ricevuta / documento',t:'file'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    cols:['data','tipo','categoria','descrizione','controparte','metodo','pagato','importo'],
+    filters:['tipo','categoria','metodo'],
+    sum:['importo'], signed:true,
+  },
+  fatture: {
+    title:'Fatture', single:'fattura', icon:'🧾', dateField:'data', sort:'desc',
+    fields:[
+      {k:'tipo',l:'Tipo',t:'select',o:['Ricevuta','Emessa'],def:'Ricevuta',req:1},
+      {k:'numero',l:'Numero',t:'text',req:1},
+      {k:'data',l:'Data',t:'date',req:1,def:()=>today()},
+      {k:'controparte',l:'Fornitore / cliente',t:'text',req:1},
+      {k:'piva',l:'P.IVA / C.F.',t:'text'},
+      {k:'imponibile',l:'Imponibile (€)',t:'money'},
+      {k:'iva',l:'IVA (€)',t:'money'},
+      {k:'totale',l:'Totale (€)',t:'money',req:1,hint:'Si calcola da solo se inserisci imponibile e IVA'},
+      {k:'scadenza_pagamento',l:'Scadenza pagamento',t:'date'},
+      {k:'stato',l:'Stato',t:'select',o:r=>r.tipo==='Emessa'?['Da incassare','Incassata']:['Da pagare','Pagata'],def:'Da pagare'},
+      {k:'sdi',l:'Codice SDI / ID',t:'text'},
+      {k:'allegato',l:'PDF / XML fattura',t:'file'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    cols:['data','tipo','numero','controparte','scadenza_pagamento','stato','imponibile','iva','totale'],
+    filters:['tipo','stato'],
+    sum:['imponibile','iva','totale'],
+    before:r=>{ if(!num(r.totale) && (num(r.imponibile)||num(r.iva))) r.totale = String((num(r.imponibile)+num(r.iva)).toFixed(2)); },
+  },
+  finanziamenti: {
+    title:'Mutui e finanziamenti', single:'finanziamento', icon:'🏦', dateField:'data_inizio', sort:'desc',
+    fields:[
+      {k:'tipo',l:'Tipo',t:'select',o:['Mutuo','Prestito','Leasing','Finanziamento soci','Contributo a fondo perduto','Altro'],def:'Mutuo'},
+      {k:'ente',l:'Banca / ente',t:'text',req:1},
+      {k:'importo',l:'Importo erogato (€)',t:'money',req:1},
+      {k:'tasso',l:'Tasso annuo %',t:'number',step:'0.01'},
+      {k:'durata_mesi',l:'Durata (mesi)',t:'number'},
+      {k:'data_inizio',l:'Data prima rata',t:'date'},
+      {k:'rata',l:'Rata mensile (€)',t:'money',hint:'Lascia vuoto per calcolarla (ammortamento francese)'},
+      {k:'giorno_rata',l:'Giorno addebito rata',t:'number'},
+      {k:'stato',l:'Stato',t:'select',o:['Attivo','Estinto'],def:'Attivo'},
+      {k:'garanzie',l:'Garanzie',t:'text'},
+      {k:'allegato',l:'Contratto',t:'file'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    computed:{ rata_calc:r=>loan(r).rata, pagate:r=>loan(r).pagate, residuo:r=>loan(r).residuo, fine:r=>loan(r).fine },
+    cols:['tipo','ente','importo','tasso','durata_mesi','rata_calc','pagate','residuo','fine','stato'],
+    filters:['tipo','stato'],
+    sum:['importo','residuo'],
+  },
+  scadenze: {
+    title:'Scadenze e adempimenti', single:'scadenza', icon:'⏰', dateField:'data', sort:'asc',
+    fields:[
+      {k:'titolo',l:'Titolo',t:'text',req:1,full:1},
+      {k:'categoria',l:'Categoria',t:'select',o:['Fiscale','Tasse e tributi','Burocratica / permessi','Contabile / societaria','Assicurazioni','Contratti e utenze','Finanziamenti','Sicurezza e manutenzioni obbligatorie','Altro'],def:'Fiscale'},
+      {k:'data',l:'Data scadenza',t:'date',req:1},
+      {k:'importo',l:'Importo (€)',t:'money'},
+      {k:'ricorrenza',l:'Si ripete',t:'select',o:['No','Mensile','Trimestrale','Semestrale','Annuale'],def:'No'},
+      {k:'preavviso_giorni',l:'Avvisami giorni prima',t:'number',def:15},
+      {k:'responsabile',l:'Responsabile',t:'user'},
+      {k:'stato',l:'Stato',t:'select',o:['Da fare','Fatto'],def:'Da fare'},
+      {k:'allegato',l:'Documento (F24, ricevuta…)',t:'file'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    computed:{ giorni:r => r.stato==='Fatto' ? '' : daysTo(r.data) },
+    cols:['data','giorni','titolo','categoria','responsabile','importo','ricorrenza','stato'],
+    filters:['stato','categoria','responsabile'],
+    sum:['importo'],
+  },
+  documenti: {
+    title:'Documenti e permessi', single:'documento', icon:'📁', dateField:'data', sort:'desc',
+    fields:[
+      {k:'titolo',l:'Titolo',t:'text',req:1,full:1},
+      {k:'categoria',l:'Categoria',t:'select',o:['SCIA','CIN / CIR','Autorizzazioni e permessi','Progetto e catasto','Bilanci societari','Atti societari e visure','Contratti','Assicurazioni','Certificazioni e conformità','Fiscale','Altro'],def:'SCIA'},
+      {k:'data',l:'Data documento',t:'date'},
+      {k:'protocollo',l:'N° protocollo / codice',t:'text'},
+      {k:'ente',l:'Ente / emittente',t:'text'},
+      {k:'scadenza',l:'Scade il',t:'date'},
+      {k:'allegato',l:'File',t:'file'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    cols:['data','categoria','titolo','protocollo','ente','scadenza','allegato'],
+    filters:['categoria'],
+  },
+  utenti: {
+    title:'Utenti e ruoli', single:'utente', icon:'👥', sort:'nome',
+    fields:[
+      {k:'nome',l:'Nome',t:'text',req:1},
+      {k:'email',l:'Email Google',t:'email',req:1,hint:'L\'account Google con cui accederà'},
+      {k:'ruolo',l:'Ruolo',t:'select',o:['admin','socio','collaboratore','contabile'],def:'socio'},
+      {k:'attivo',l:'Attivo',t:'bool',def:'si'},
+      {k:'note',l:'Note',t:'textarea'},
+    ],
+    cols:['nome','email','ruolo','attivo'],
+  },
+  log: { title:'Registro attività', single:'voce', icon:'📜', sort:'quando', readonly:true,
+    fields:[{k:'quando',l:'Quando',t:'text'},{k:'utente',l:'Utente',t:'text'},{k:'azione',l:'Azione',t:'text'},{k:'modulo',l:'Modulo',t:'text'},{k:'dettaglio',l:'Dettaglio',t:'text'}],
+    cols:['quando','utente','azione','modulo','dettaglio'], filters:['utente','modulo'] },
+};
+const ROLE_INFO = {
+  admin:'Accesso completo, gestisce utenti e ruoli',
+  socio:'Accesso completo tranne la gestione utenti',
+  collaboratore:'Vede prenotazioni e camere, gestisce le pulizie',
+  contabile:'Sola lettura di contabilità, fatture, scadenze e documenti',
+};
+const STRUTTURA_FIELDS = [
+  {k:'ragione_sociale',l:'Ragione sociale',t:'text'},{k:'piva',l:'Partita IVA',t:'text'},
+  {k:'nome_struttura',l:'Nome struttura',t:'text'},{k:'tipologia',l:'Tipologia ricettiva',t:'text',hint:'Es. country house / B&B / affittacamere'},
+  {k:'indirizzo',l:'Indirizzo',t:'text',full:1},
+  {k:'cin',l:'CIN – Codice Identificativo Nazionale',t:'text'},{k:'cir',l:'Codice regionale (IUN/CIR)',t:'text'},
+  {k:'scia_protocollo',l:'SCIA – n° protocollo',t:'text'},{k:'scia_data',l:'SCIA – data',t:'date'},
+  {k:'camere_autorizzate',l:'Camere autorizzate',t:'number'},{k:'posti_letto',l:'Posti letto autorizzati',t:'number'},
+  {k:'pec',l:'PEC',t:'email'},{k:'email',l:'Email',t:'email'},{k:'telefono',l:'Telefono',t:'tel'},
+  {k:'iban',l:'IBAN',t:'text'},{k:'sdi',l:'Codice destinatario SDI',t:'text'},
+  {k:'commercialista',l:'Commercialista (nome, contatti)',t:'text',full:1},
+  {k:'tassa_soggiorno',l:'Tassa di soggiorno – regole',t:'textarea',hint:'Importo a persona/notte, esenzioni, scadenze di versamento al Comune'},
+  {k:'note',l:'Note',t:'textarea'},
+];
+const NAV = [
+  {grp:'Operativo'},
+  {v:'dashboard',l:'Panoramica',i:'🏡'},
+  {v:'calendario',l:'Calendario',i:'🗓️',need:'prenotazioni'},
+  {v:'prenotazioni'},{v:'pulizie'},{v:'camere'},{v:'stagioni'},
+  {grp:'Amministrazione'},
+  {v:'movimenti'},{v:'fatture'},{v:'finanziamenti'},{v:'scadenze'},{v:'documenti'},
+  {v:'report',l:'Bilancio e report',i:'📊',need:'movimenti'},
+  {grp:'Impostazioni'},
+  {v:'struttura',l:'Dati struttura',i:'🏷️',need:'impostazioni'},
+  {v:'utenti'},{v:'log'},
+];
+
+/* =====================================================================
+   UTILITY
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = parseFloat(String(v ?? '').replace(',', '.')); return isNaN(n) ? 0 : n; };
+const eur = v => (num(v)).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+const eur0 = v => (num(v)).toLocaleString('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+const pad = n => String(n).padStart(2,'0');
+const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today = () => iso(new Date());
+const addDays = (s,n) => { const d = new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return iso(d); };
+const addMonths = (s,n) => { const d = new Date(s+'T12:00:00'); const day=d.getDate(); d.setDate(1); d.setMonth(d.getMonth()+n); const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); d.setDate(Math.min(day,last)); return iso(d); };
+const daysTo = s => s ? Math.round((new Date(s+'T12:00:00') - new Date(today()+'T12:00:00'))/864e5) : '';
+const nights = (a,b) => (a && b) ? Math.max(0, Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5)) : 0;
+const fdate = s => { if(!s) return ''; const p=String(s).slice(0,10).split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : s; };
+const MESI = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+const MESI_L = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const userName = e => (S.team.find(u => u.email===e)||{}).nome || e || '';
+const fileObj = v => { if(!v) return null; try { const o = typeof v==='string' ? JSON.parse(v) : v; return o && o.u ? o : null; } catch(e) { return null; } };
+const can = (m, lvl='r') => S.perms[m] && (lvl==='r' || S.perms[m]==='rw');
+
+function loan(r){
+  const P=num(r.importo), n=Math.round(num(r.durata_mesi)), i=num(r.tasso)/1200;
+  let rata = num(r.rata) || (n ? (i ? P*i/(1-Math.pow(1+i,-n)) : P/n) : 0);
+  let pagate = 0;
+  if (r.data_inizio && n){
+    const s=new Date(r.data_inizio+'T12:00:00'), t=new Date();
+    pagate = (t.getFullYear()-s.getFullYear())*12 + (t.getMonth()-s.getMonth()) + (t.getDate()>=s.getDate()?1:0);
+    pagate = Math.max(0, Math.min(n, pagate));
+  }
+  let residuo = P;
+  if (n){ residuo = i ? P*Math.pow(1+i,pagate) - rata*(Math.pow(1+i,pagate)-1)/i : P - rata*pagate; }
+  if (r.stato==='Estinto') residuo = 0;
+  const fine = r.data_inizio && n ? addMonths(r.data_inizio, n-1) : '';
+  return {rata:Math.round(rata*100)/100, pagate: n? pagate+'/'+n : '', residuo:Math.max(0,Math.round(residuo*100)/100), fine};
+}
+function overlap(r){
+  if (r.stato==='Cancellata') return '';
+  const c = (S.data.prenotazioni||[]).find(p => p.id!==r.id && p.camera===r.camera && p.stato!=='Cancellata' && p.arrivo < r.partenza && r.arrivo < p.partenza);
+  return c ? `Attenzione: la camera ${r.camera} è già occupata da ${c.ospite} (${fdate(c.arrivo)} → ${fdate(c.partenza)})` : '';
+}
+function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='toast'+(err?' err':''); t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', err?6000:2600); }
+
+/* =====================================================================
+   API: Google Apps Script oppure demo locale
+   ===================================================================== */
+const IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+function call(fn, ...args){
+  if (IS_GAS) return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(e => rej(e && e.message ? e : new Error(String(e))))[fn](...args));
+  return Promise.resolve().then(() => Demo[fn](...args));
+}
+
+const Demo = (() => {
+  const KEY='lifoli-gestionale-demo';
+  const PERMS = {
+    admin:{prenotazioni:'rw',camere:'rw',stagioni:'rw',pulizie:'rw',movimenti:'rw',fatture:'rw',finanziamenti:'rw',scadenze:'rw',documenti:'rw',impostazioni:'rw',utenti:'rw',log:'r'},
+    socio:{prenotazioni:'rw',camere:'rw',stagioni:'rw',pulizie:'rw',movimenti:'rw',fatture:'rw',finanziamenti:'rw',scadenze:'rw',documenti:'rw',impostazioni:'rw',log:'r'},
+    collaboratore:{prenotazioni:'r',camere:'r',stagioni:'r',pulizie:'rw',impostazioni:'r'},
+    contabile:{movimenti:'r',fatture:'r',finanziamenti:'r',scadenze:'r',documenti:'r',impostazioni:'r',prenotazioni:'r',camere:'r',stagioni:'r'},
+  };
+  let db;
+  const id = () => Math.random().toString(36).slice(2,14);
+  function seed(){
+    const y=new Date().getFullYear(), t=today();
+    const d=(m,dd,yy=y)=>yy+'-'+pad(m)+'-'+pad(dd);
+    const rooms=['Suite Ginestra','Malvarosa','Euforbia','Erica','Mirto'];
+    const db={
+      utenti:[{id:'u1',nome:'Domenico',email:'domenico@demo.it',ruolo:'admin',attivo:'si'},{id:'u2',nome:'Fratello',email:'fratello@demo.it',ruolo:'socio',attivo:'si'},{id:'u3',nome:'Maria (pulizie)',email:'maria@demo.it',ruolo:'collaboratore',attivo:'si'},{id:'u4',nome:'Studio commercialista',email:'studio@demo.it',ruolo:'contabile',attivo:'si'}],
+      camere:[
+        {id:id(),nome:'Suite Ginestra',tipo:'Suite',posti_letto:'2',mq:'35',prezzo_base:'180',stato:'Attivo',dotazioni:'Letto a baldacchino, zona living, bagno privato'},
+        {id:id(),nome:'Malvarosa',tipo:'Matrimoniale',posti_letto:'2',mq:'24',prezzo_base:'130',stato:'Attivo'},
+        {id:id(),nome:'Euforbia',tipo:'Matrimoniale',posti_letto:'2',mq:'26',prezzo_base:'140',stato:'Attivo'},
+        {id:id(),nome:'Erica',tipo:'Matrimoniale',posti_letto:'2',mq:'22',prezzo_base:'120',stato:'Attivo'},
+        {id:id(),nome:'Mirto',tipo:'Doppia',posti_letto:'2',mq:'20',prezzo_base:'110',stato:'Attivo'}],
+      stagioni:[
+        {id:id(),nome:'Chiusura invernale',camera:'Tutte',dal:d(1,7),al:d(3,31),stato:'Chiusa'},
+        {id:id(),nome:'Bassa stagione',camera:'Tutte',dal:d(4,1),al:d(6,14),stato:'Aperta',prezzo_notte:'110',soggiorno_minimo:'2'},
+        {id:id(),nome:'Alta stagione',camera:'Tutte',dal:d(6,15),al:d(9,15),stato:'Aperta',prezzo_notte:'160',soggiorno_minimo:'3'},
+        {id:id(),nome:'Bassa stagione autunno',camera:'Tutte',dal:d(9,16),al:d(11,3),stato:'Aperta',prezzo_notte:'110',soggiorno_minimo:'2'},
+        {id:id(),nome:'Chiusura',camera:'Tutte',dal:d(11,4),al:d(12,20),stato:'Chiusa'}],
+      prenotazioni:[], pulizie:[], movimenti:[], fatture:[], log:[],
+      finanziamenti:[{id:id(),tipo:'Mutuo',ente:'Banca di Sassari (esempio)',importo:'250000',tasso:'4.2',durata_mesi:'240',data_inizio:d(1,15,y-2),stato:'Attivo'},
+                     {id:id(),tipo:'Prestito',ente:'Finanziamento arredi (esempio)',importo:'30000',tasso:'6.5',durata_mesi:'60',data_inizio:d(4,1,y-1),stato:'Attivo'}],
+      scadenze:[
+        {id:id(),titolo:'Versamento tassa di soggiorno al Comune',categoria:'Tasse e tributi',data:addDays(t,6),ricorrenza:'Trimestrale',preavviso_giorni:'10',responsabile:'domenico@demo.it',stato:'Da fare',importo:'420'},
+        {id:id(),titolo:'Liquidazione IVA trimestrale (F24)',categoria:'Fiscale',data:addDays(t,24),ricorrenza:'Trimestrale',preavviso_giorni:'10',stato:'Da fare'},
+        {id:id(),titolo:'Rinnovo assicurazione RC struttura',categoria:'Assicurazioni',data:addDays(t,-3),importo:'1150',ricorrenza:'Annuale',preavviso_giorni:'30',stato:'Da fare'},
+        {id:id(),titolo:'Revisione estintori',categoria:'Sicurezza e manutenzioni obbligatorie',data:addDays(t,75),ricorrenza:'Semestrale',stato:'Da fare'},
+        {id:id(),titolo:'Comunicazione flussi turistici ISTAT del mese',categoria:'Burocratica / permessi',data:addDays(t,12),ricorrenza:'Mensile',preavviso_giorni:'5',stato:'Da fare'},
+        {id:id(),titolo:'Diritto annuale Camera di Commercio',categoria:'Contabile / societaria',data:d(6,30,y+1),ricorrenza:'Annuale',stato:'Da fare',importo:'120'}],
+      documenti:[{id:id(),titolo:'SCIA avvio attività ricettiva',categoria:'SCIA',data:d(5,10,y-1),protocollo:'(da inserire)',ente:'SUAPE Luogosanto'},
+                 {id:id(),titolo:'Visura camerale Fratelli Azara S.r.l.s.',categoria:'Atti societari e visure',data:d(2,1)}],
+      impostazioni:[{id:'struttura',ragione_sociale:'Fratelli Azara S.r.l.s.',piva:'IT02906110909',nome_struttura:'Li Fòli – Casale di Campagna',indirizzo:'Località Balaiana, 07020 Luogosanto (SS)',email:'info@lifolicasaledicampagna.it',cin:'',tipologia:'Country house'}],
+    };
+    const names=['Müller','Rossi','Smith','Dubois','García','Bianchi','Schmidt','Johnson','Ferrari','Martin','Weber','Conti'];
+    const canali=['Booking.com','Diretto','Airbnb','Sito web','Booking.com','Diretto'];
+    let k=0;
+    for (let off=-150; off<120; off+=3){
+      const room=rooms[k%rooms.length], a=addDays(t,off+(k%2)), n=2+(k%5), p=addDays(a,n);
+      const m=+a.slice(5,7); if (m<4 || m>10) { k++; continue; }
+      const price=(m>=6&&m<=9?160:115)+(room==='Suite Ginestra'?50:0), tot=price*n, canale=canali[k%canali.length];
+      const past=p<t;
+      db.prenotazioni.push({id:id(),ospite:names[k%names.length]+' '+['Anna','Paul','Laura','Marc','Sofia','Jan'][k%6],camera:room,arrivo:a,partenza:p,adulti:'2',bambini:'0',canale,stato:past?'Check-out':(a<=t?'Check-in':'Confermata'),totale:String(tot),commissione:canale==='Booking.com'?String(Math.round(tot*.15)):'',tassa_soggiorno:String(2*2*n),pagamento:past?'Saldato':'Acconto',acconto:String(Math.round(tot*.3)),alloggiati:past?'si':''});
+      if (past) db.movimenti.push({id:id(),data:p,tipo:'Entrata',categoria:'Soggiorni',descrizione:'Soggiorno '+names[k%names.length]+' – '+room,importo:String(tot),iva_pct:'10',metodo:'Bonifico',pagato:'si'});
+      k++;
+    }
+    for (let mo=0; mo<12; mo++){
+      const dd=iso(new Date(y,mo,5)); if (dd>t) break;
+      db.movimenti.push({id:id(),data:dd,tipo:'Uscita',categoria:'Software e abbonamenti',descrizione:'Amenitiz – abbonamento mensile',importo:'95',iva_pct:'0',metodo:'Revolut',controparte:'Amenitiz',pagato:'si'});
+      db.movimenti.push({id:id(),data:iso(new Date(y,mo,2)),tipo:'Uscita',categoria:'Software e abbonamenti',descrizione:'Google Workspace',importo:'9.88',iva_pct:'22',metodo:'Revolut',controparte:'Google',pagato:'si'});
+      db.movimenti.push({id:id(),data:iso(new Date(y,mo,15)),tipo:'Uscita',categoria:'Rate finanziamenti',descrizione:'Rata mutuo',importo:'1541.47',iva_pct:'Esente',metodo:'Addebito diretto (RID)',controparte:'Banca',pagato:'si'});
+      if (mo>=3 && mo<=10){
+        db.movimenti.push({id:id(),data:iso(new Date(y,mo,20)),tipo:'Uscita',categoria:'Utenze (luce, acqua, gas)',descrizione:'Bolletta energia elettrica',importo:String(180+mo*25),iva_pct:'10',metodo:'Addebito diretto (RID)',controparte:'Fornitore energia',pagato:'si'});
+        db.movimenti.push({id:id(),data:iso(new Date(y,mo,28)),tipo:'Uscita',categoria:'Pulizie e lavanderia',descrizione:'Lavanderia biancheria',importo:String(220+mo*30),iva_pct:'22',metodo:'Bonifico',controparte:'Lavanderia',pagato:'si'});
+        db.movimenti.push({id:id(),data:iso(new Date(y,mo,10)),tipo:'Uscita',categoria:'Colazioni e alimentari',descrizione:'Spesa colazioni',importo:String(160+mo*12),iva_pct:'10',metodo:'Carta / POS',pagato:'si'});
+      }
+    }
+    db.fatture.push({id:id(),tipo:'Ricevuta',numero:'2026/118',data:addDays(t,-20),controparte:'Lavanderia Gallura (esempio)',imponibile:'480',iva:'105.60',totale:'585.60',scadenza_pagamento:addDays(t,4),stato:'Da pagare'});
+    db.fatture.push({id:id(),tipo:'Ricevuta',numero:'AMENITIZ 696053',data:addDays(t,-40),controparte:'Amenitiz Solutions SL',imponibile:'95',iva:'0',totale:'95',stato:'Pagata'});
+    db.fatture.push({id:id(),tipo:'Emessa',numero:'12/'+y,data:addDays(t,-10),controparte:'Agenzia viaggi (esempio)',imponibile:'900',iva:'90',totale:'990',scadenza_pagamento:addDays(t,20),stato:'Da incassare'});
+    for (let i=0;i<10;i++){ const p=db.prenotazioni.filter(x=>x.partenza>=t)[i]; if(!p) break;
+      db.pulizie.push({id:id(),data:p.partenza,camera:p.camera,tipo:'Cambio ospite',assegnato_a:'maria@demo.it',stato:'Da fare'}); }
+    db.pulizie.push({id:id(),data:addDays(t,2),camera:'Piscina',tipo:'Giardino e piscina',assegnato_a:'fratello@demo.it',stato:'Da fare',costo:'60'});
+    return db;
+  }
+  function load(){ try { db = JSON.parse(localStorage.getItem(KEY)); } catch(e) {} if(!db || !db.utenti) { db = seed(); persist(); } }
+  function persist(){ try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e) {} }
+  const role = () => { try { return localStorage.getItem(KEY+'-role') || 'admin'; } catch(e) { return 'admin'; } };
+  const me = () => db.utenti.find(u=>u.ruolo===role()) || db.utenti[0];
+  const need = (m,l) => { const p=PERMS[role()][m]; if(!p || (l==='rw'&&p!=='rw')) throw new Error('Permesso negato per "'+m+'"'); };
+  const log = (azione,modulo,r) => { db.log.push({id:id(),quando:new Date().toISOString().slice(0,19),utente:me().email,azione,modulo,record_id:r.id,dettaglio:String(r.titolo||r.descrizione||r.ospite||r.nome||r.numero||'').slice(0,120)}); };
+  return {
+    bootstrap(){ load(); const perms=PERMS[role()], data={}; Object.keys(perms).forEach(m=>data[m]=JSON.parse(JSON.stringify(db[m]||[])));
+      return {user:{...me()}, perms, data, team:db.utenti.filter(u=>u.attivo!=='no').map(u=>({email:u.email,nome:u.nome,ruolo:u.ruolo})), demo:true, role:role()}; },
+    saveRecord(m,r){ need(m,'rw'); r={...r}; const isNew=!r.id; if(isNew){r.id=id(); r.creato_il=new Date().toISOString().slice(0,19); r.creato_da=me().email;}
+      r.modificato_il=new Date().toISOString().slice(0,19); r.modificato_da=me().email;
+      db[m]=db[m]||[]; const i=db[m].findIndex(x=>x.id===r.id); if(i>-1) db[m][i]=r; else db[m].push(r); log(isNew?'crea':'modifica',m,r); persist(); return r; },
+    deleteRecord(m,idv){ need(m,'rw'); const i=(db[m]||[]).findIndex(x=>x.id===idv); if(i>-1){ log('elimina',m,db[m][i]); db[m].splice(i,1); persist(); } return true; },
+    uploadFile(m,name){ need(m,'rw'); return {n:name,u:'#demo-file'}; },
+    setRole(r){ try{ localStorage.setItem(KEY+'-role',r); }catch(e){} },
+    reset(){ try{ localStorage.removeItem(KEY); }catch(e){} db=null; },
+  };
+})();
+
+/* =====================================================================
+   STATO E ROUTING
+   ===================================================================== */
+const S = { user:null, perms:{}, data:{}, team:[], view:'dashboard', f:{}, calMonth:null, reportYear:new Date().getFullYear() };
+
+async function boot(){
+  try {
+    const r = await call('bootstrap');
+    Object.assign(S, r);
+    S.view = (location.hash||'#dashboard').slice(1) || 'dashboard';
+    render();
+  } catch(e){
+    $('#root').innerHTML = `<div class="loading" style="flex-direction:column;gap:12px;text-align:center;padding:20px"><div>Accesso non consentito</div><div style="font-family:var(--sans);font-size:.95rem;color:var(--muted);max-width:460px">${esc(e.message)}</div></div>`;
+  }
+}
+async function reload(){ const r = await call('bootstrap'); Object.assign(S, r); render(); }
+window.addEventListener('hashchange', () => { S.view = location.hash.slice(1)||'dashboard'; render(); $('aside')?.classList.remove('open'); });
+function go(v){ location.hash = v; }
+
+function navItems(){
+  return NAV.filter(n => n.grp || (n.need ? can(n.need) : (n.v==='dashboard' || can(n.v)))).map(n => {
+    if (n.grp) return n;
+    const m = M[n.v] || {};
+    return {...n, l:n.l||m.title, i:n.i||m.icon};
+  }).filter((n,i,a) => !n.grp || (a[i+1] && !a[i+1].grp));
+}
+function alertsCount(){
+  const s=(S.data.scadenze||[]).filter(x=>x.stato!=='Fatto' && x.data && daysTo(x.data) <= num(x.preavviso_giorni||15)).length;
+  return s;
+}
+
+function render(){
+  if (!S.user) return;
+  const v = S.view;
+  const ok = v==='dashboard' || (v==='calendario'&&can('prenotazioni')) || (v==='report'&&can('movimenti')) || (v==='struttura'&&can('impostazioni')) || can(v);
+  if (!ok) { S.view='dashboard'; }
+  const al = alertsCount();
+  const nav = navItems().map(n => n.grp ? `<div class="grp">${n.grp}</div>` :
+    `<a href="#${n.v}" class="${S.view===n.v?'on':''}"><span class="ic">${n.i}</span>${esc(n.l)}${n.v==='scadenze'&&al?`<span class="badge">${al}</span>`:''}</a>`).join('');
+  $('#root').innerHTML = `
+  <div class="app">
+    <aside id="side">
+      <div class="brand">Li Fòli</div><div class="sub">Gestionale</div>
+      <nav>${nav}</nav>
+      <div class="me"><b>${esc(S.user.nome||S.user.email)}</b>${esc(S.user.email)}<br><span class="pill ${COLORS.ruolo[S.user.ruolo]||''}" style="margin-top:6px">${esc(S.user.ruolo)}</span></div>
+    </aside>
+    <main>
+      ${S.demo ? `<div class="demo">🧪 <b>Modalità demo</b> – dati di esempio salvati solo in questo browser. Prova i ruoli:
+        <select id="demoRole">${['admin','socio','collaboratore','contabile'].map(r=>`<option ${S.role===r?'selected':''}>${r}</option>`).join('')}</select>
+        <button class="btn sm" id="demoReset">Ripristina dati demo</button></div>` : ''}
+      <div id="view"></div>
+    </main>
+  </div>`;
+  if (S.demo){
+    $('#demoRole').onchange = e => { Demo.setRole(e.target.value); reload(); };
+    $('#demoReset').onclick = () => { Demo.reset(); reload(); toast('Dati demo ripristinati'); };
+  }
+  const V = {dashboard:vDashboard, calendario:vCalendar, report:vReport, struttura:vStruttura};
+  (V[S.view] || vList)(S.view);
+}
+function header(title, actions=''){
+  return `<div class="top"><button class="burger" onclick="document.getElementById('side').classList.toggle('open')">☰</button><h1>${esc(title)}</h1>${actions}</div>`;
+}
+function pill(field, v){ if(v===''||v==null) return ''; const c=(COLORS[field]||{})[v]; return `<span class="pill ${c||''}">${esc(v)}</span>`; }
+
+/* =====================================================================
+   VISTA: PANORAMICA
+   ===================================================================== */
+function vDashboard(){
+  const t=today(), y=t.slice(0,4), d=S.data;
+  let html = header('Buongiorno, '+(S.user.nome||'').split(' ')[0]);
+  const cards=[];
+  if (d.movimenti){
+    const yr=d.movimenti.filter(m=>(m.data||'').startsWith(y));
+    const inc=yr.filter(m=>m.tipo==='Entrata').reduce((a,m)=>a+num(m.importo),0), out=yr.filter(m=>m.tipo==='Uscita').reduce((a,m)=>a+num(m.importo),0);
+    const ym=t.slice(0,7), mIn=d.movimenti.filter(m=>m.tipo==='Entrata'&&(m.data||'').startsWith(ym)).reduce((a,m)=>a+num(m.importo),0);
+    cards.push(kpi('Entrate '+y, eur0(inc), 'questo mese '+eur0(mIn)), kpi('Uscite '+y, eur0(out)), kpi('Risultato '+y, `<span class="${inc-out>=0?'pos':'neg'}">${eur0(inc-out)}</span>`, 'entrate – uscite registrate'));
+  }
+  if (d.prenotazioni){
+    const occ=occupancy(t, addDays(t,30));
+    cards.push(kpi('Occupazione 30 gg', occ.pct+'%', occ.sold+' notti su '+occ.avail));
+  }
+  if (cards.length) html += `<div class="kpis">${cards.join('')}</div>`;
+
+  const blocks=[];
+  if (d.prenotazioni){
+    const arr=d.prenotazioni.filter(p=>p.stato!=='Cancellata' && p.arrivo>=t && p.arrivo<=addDays(t,7)).sort((a,b)=>a.arrivo.localeCompare(b.arrivo));
+    const dep=d.prenotazioni.filter(p=>p.stato!=='Cancellata' && p.partenza>=t && p.partenza<=addDays(t,7)).sort((a,b)=>a.partenza.localeCompare(b.partenza));
+    blocks.push(box('Arrivi prossimi 7 giorni', arr.map(p=>li(rel(p.arrivo), `<b>${esc(p.ospite)}</b> · ${esc(p.camera)} · ${nights(p.arrivo,p.partenza)} notti`, pill('pagamento',p.pagamento), `prenotazioni:${p.id}`))));
+    blocks.push(box('Partenze prossimi 7 giorni', dep.map(p=>li(rel(p.partenza), `<b>${esc(p.ospite)}</b> · ${esc(p.camera)}`, p.pagamento!=='Saldato'?pill('pagamento',p.pagamento):'', `prenotazioni:${p.id}`))));
+  }
+  if (d.pulizie){
+    const pl=d.pulizie.filter(p=>p.stato!=='Fatto' && p.data<=addDays(t,3)).sort((a,b)=>a.data.localeCompare(b.data));
+    blocks.push(box('Pulizie e lavori (prossimi 3 giorni)', pl.map(p=>li(rel(p.data), `<b>${esc(p.tipo)}</b> · ${esc(p.camera||'')}`, `<span class="muted">${esc(userName(p.assegnato_a))}</span>`, `pulizie:${p.id}`))));
+  }
+  if (d.scadenze){
+    const sc=d.scadenze.filter(s=>s.stato!=='Fatto' && s.data && daysTo(s.data)<=Math.max(30,num(s.preavviso_giorni))).sort((a,b)=>a.data.localeCompare(b.data));
+    blocks.push(box('Scadenze imminenti e scadute', sc.map(s=>{ const g=daysTo(s.data); return li(fdate(s.data), `<b>${esc(s.titolo)}</b>${num(s.importo)?' · '+eur(s.importo):''}`, `<span class="pill ${g<0?'red':g<=7?'amber':''}">${g<0?'scaduta da '+(-g)+' gg':g===0?'oggi':'tra '+g+' gg'}</span>`, `scadenze:${s.id}`); })));
+  }
+  if (d.fatture){
+    const fa=d.fatture.filter(f=>f.stato==='Da pagare'||f.stato==='Da incassare').sort((a,b)=>(a.scadenza_pagamento||'9').localeCompare(b.scadenza_pagamento||'9'));
+    blocks.push(box('Fatture aperte', fa.map(f=>li(fdate(f.scadenza_pagamento)||'—', `<b>${esc(f.controparte)}</b> · n. ${esc(f.numero)}`, `${pill('stato',f.stato)} <b>${eur(f.totale)}</b>`, `fatture:${f.id}`))));
+  }
+  if (d.finanziamenti){
+    const fi=d.finanziamenti.filter(f=>f.stato!=='Estinto');
+    const tot=fi.reduce((a,f)=>a+loan(f).residuo,0), rate=fi.reduce((a,f)=>a+loan(f).rata,0);
+    blocks.push(box('Finanziamenti', fi.map(f=>li(f.tipo, `<b>${esc(f.ente)}</b>`, `residuo <b>${eur0(loan(f).residuo)}</b>`, `finanziamenti:${f.id}`)).concat(fi.length?[`<li><span class="grow muted">Rate mensili totali</span><b>${eur(rate)}</b></li><li><span class="grow muted">Debito residuo stimato</span><b>${eur0(tot)}</b></li>`]:[])));
+  }
+  html += `<div class="grid2">${blocks.join('')}</div>`;
+  $('#view').innerHTML = html;
+  bindOpen();
+}
+const kpi = (l,v,s='') => `<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+const box = (t,items) => `<div class="card"><h3>${t}</h3><ul class="list">${items.length?items.join(''):'<li class="empty">Niente da segnalare</li>'}</ul></div>`;
+const li = (when, main, right, open) => `<li ${open?`data-open="${open}" style="cursor:pointer"`:''}><span class="when">${when}</span><span class="grow">${main}</span>${right||''}</li>`;
+const rel = s => { const g=daysTo(s); return g===0?'<b>Oggi</b>':g===1?'Domani':fdate(s); };
+function bindOpen(){ document.querySelectorAll('[data-open]').forEach(el => el.onclick = () => { const [m,id]=el.dataset.open.split(':'); openForm(m, (S.data[m]||[]).find(r=>r.id===id)); }); }
+
+function isOpenDay(room, day){
+  const st=(S.data.stagioni||[]).filter(s=>(s.camera==='Tutte'||!s.camera||s.camera===room) && s.dal<=day && day<=s.al);
+  if (!st.length) return true;
+  const specific=st.filter(s=>s.camera===room); const use=specific.length?specific:st;
+  return !use.some(s=>s.stato==='Chiusa');
+}
+function activeRooms(){ return (S.data.camere||[]).filter(c=>c.stato!=='Non attivo').map(c=>c.nome).sort(); }
+function occupancy(from, to, room){
+  const rooms = room ? [room] : activeRooms(); let avail=0, sold=0;
+  for (let dd=from; dd<to; dd=addDays(dd,1)) rooms.forEach(r=>{ if(isOpenDay(r,dd)){ avail++; if((S.data.prenotazioni||[]).some(p=>p.camera===r&&p.stato!=='Cancellata'&&p.arrivo<=dd&&dd<p.partenza)) sold++; } });
+  return {avail, sold, pct: avail?Math.round(sold/avail*100):0};
+}
+
+/* =====================================================================
+   VISTA: ELENCO GENERICO
+   ===================================================================== */
+function colLabel(m,k){ const f=M[m].fields.find(f=>f.k===k); if(f) return f.l.replace(/ \(€\)| %/,''); return ({notti:'Notti',rata_calc:'Rata',pagate:'Rate pagate',residuo:'Residuo',fine:'Ultima rata',giorni:'Giorni'})[k]||k; }
+function cell(m,k,r){
+  const def=M[m], f=def.fields.find(f=>f.k===k), v = def.computed && def.computed[k] ? def.computed[k](r) : r[k];
+  if (k==='giorni'){ if(v==='') return '<td></td>'; return `<td class="num"><span class="pill ${v<0?'red':v<=7?'amber':''}">${v<0?v+' (scaduta)':v}</span></td>`; }
+  if (['rata_calc','residuo'].includes(k)) return `<td class="num">${eur(v)}</td>`;
+  if (k==='fine') return `<td>${fdate(v)}</td>`;
+  if (!f) return `<td>${esc(v)}</td>`;
+  if (f.t==='money'){ const neg = def.signed && r.tipo==='Uscita'; return `<td class="num ${neg?'neg':''}">${v!==''&&v!=null?(neg?'– ':'')+eur(v):''}</td>`; }
+  if (f.t==='date') return `<td>${fdate(v)}</td>`;
+  if (f.t==='bool') return `<td>${v==='si'?'✓':''}</td>`;
+  if (f.t==='user') return `<td>${esc(userName(v))}</td>`;
+  if (f.t==='file'){ const o=fileObj(v); return `<td>${o?`<a href="${esc(o.u)}" target="_blank" onclick="event.stopPropagation()">📎 ${esc(o.n)}</a>`:''}</td>`; }
+  if (COLORS[k]) return `<td>${pill(k,v)}</td>`;
+  if (k==='descrizione'||k==='titolo'||k==='dettaglio') return `<td class="wrap">${esc(v)}</td>`;
+  return `<td>${esc(v)}</td>`;
+}
+function vList(m){
+  const def=M[m]; if(!def){ go('dashboard'); return; }
+  const rw = can(m,'rw') && !def.readonly;
+  const F = S.f[m] = S.f[m] || {q:'', year: def.dateField && ['prenotazioni','movimenti','fatture'].includes(m) ? String(new Date().getFullYear()) : ''};
+  let rows=(S.data[m]||[]).slice();
+  const years=[...new Set(rows.map(r=>(r[def.dateField]||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  if (F.year) rows=rows.filter(r=>(r[def.dateField]||'').startsWith(F.year));
+  (def.filters||[]).forEach(k=>{ if(F[k]) rows=rows.filter(r=>r[k]===F[k]); });
+  if (F.q){ const q=F.q.toLowerCase(); rows=rows.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(q))); }
+  if (m==='scadenze' && F.stato!=='Fatto' && !F.showDone) rows=rows.filter(r=>r.stato!=='Fatto' || F.stato==='Fatto');
+  if (m==='pulizie' && !F.showDone && !F.stato) rows=rows.filter(r=>r.stato!=='Fatto');
+  const sk=def.dateField||def.sort; const dir=def.sort==='desc'||m==='log'?-1:1;
+  rows.sort((a,b)=>String(a[sk]||'').localeCompare(String(b[sk]||''))*dir);
+
+  const opts=k=>{ const vals=[...new Set((S.data[m]||[]).map(r=>r[k]).filter(Boolean))].sort(); return `<select data-f="${k}"><option value="">${colLabel(m,k)}: tutti</option>${vals.map(v=>`<option ${F[k]===v?'selected':''} value="${esc(v)}">${esc(k==='assegnato_a'||k==='responsabile'||k==='utente'?userName(v):v)}</option>`).join('')}</select>`; };
+  let actions = rw ? `<button class="btn pri" id="add">+ Nuov${def.single.endsWith('a')||def.single.endsWith('à')?'a':'o'} ${def.single}</button>` : '';
+  if (m==='scadenze' && rw) actions = `<button class="btn" id="seed">Aggiungi scadenze tipiche</button>` + actions;
+  if (rows.length) actions = `<button class="btn" id="csv">Esporta CSV</button>` + actions;
+  let html = header(def.title, actions);
+  if (def.intro) html += `<p class="muted" style="margin-top:-8px">${def.intro}</p>`;
+  if (m==='utenti') html += `<div class="card" style="margin-bottom:14px"><h3>Ruoli</h3>${Object.entries(ROLE_INFO).map(([r,d])=>`<div style="padding:3px 0">${pill('ruolo',r)} <span class="muted">${d}</span></div>`).join('')}<p class="muted" style="margin:10px 0 0;font-size:.82rem">Quando aggiungi un utente, il foglio dati e la cartella allegati vengono condivisi automaticamente con il suo account Google.</p></div>`;
+  html += `<div class="toolbar"><input type="search" id="q" placeholder="Cerca…" value="${esc(F.q)}">
+    ${def.dateField?`<select data-f="year"><option value="">Tutti gli anni</option>${years.map(y=>`<option ${F.year===y?'selected':''}>${y}</option>`).join('')}</select>`:''}
+    ${(def.filters||[]).map(opts).join('')}
+    ${(m==='scadenze'||m==='pulizie')?`<label class="muted"><input type="checkbox" id="showDone" ${F.showDone?'checked':''}> mostra completate</label>`:''}
+    <span class="muted" style="margin-left:auto">${rows.length} element${rows.length===1?'o':'i'}</span></div>`;
+  if (!rows.length) html += `<div class="card empty">Nessun elemento${rw?' — usa il pulsante in alto per aggiungerne uno.':'.'}</div>`;
+  else {
+    const sums = (def.sum||[]).length ? def.cols.map(k=>{
+      if(!(def.sum||[]).includes(k)) return '<td></td>';
+      const tot = rows.reduce((a,r)=>{ const v = def.computed&&def.computed[k]?def.computed[k](r):r[k]; return a + (def.signed && r.tipo==='Uscita' ? -num(v) : num(v)); },0);
+      return `<td class="num ${tot<0?'neg':''}">${eur(tot)}</td>`; }) : null;
+    if (sums) sums[0] = '<td>Totale</td>';
+    html += `<div class="tablewrap"><table><thead><tr>${def.cols.map(k=>{ const f=def.fields.find(f=>f.k===k); return `<th class="${(f&&f.t==='money')||['rata_calc','residuo','giorni'].includes(k)?'num':''}">${colLabel(m,k)}</th>`; }).join('')}</tr></thead>
+      <tbody>${rows.map(r=>`<tr data-id="${esc(r.id)}">${def.cols.map(k=>cell(m,k,r)).join('')}</tr>`).join('')}</tbody>
+      ${sums?`<tfoot><tr>${sums.join('')}</tr></tfoot>`:''}</table></div>`;
+  }
+  $('#view').innerHTML = html;
+  const rerender = () => vList(m);
+  $('#q').oninput = e => { F.q=e.target.value; clearTimeout(F._t); F._t=setTimeout(()=>{ rerender(); const q=$('#q'); q.focus(); q.setSelectionRange(q.value.length,q.value.length); },250); };
+  document.querySelectorAll('[data-f]').forEach(s => s.onchange = e => { F[s.dataset.f]=e.target.value; rerender(); });
+  if ($('#showDone')) $('#showDone').onchange = e => { F.showDone=e.target.checked; rerender(); };
+  if ($('#add')) $('#add').onclick = () => openForm(m);
+  if ($('#seed')) $('#seed').onclick = seedScadenze;
+  if ($('#csv')) $('#csv').onclick = () => exportCsv(m, rows);
+  document.querySelectorAll('tbody tr[data-id]').forEach(tr => tr.onclick = () => openForm(m, (S.data[m]||[]).find(r=>r.id===tr.dataset.id)));
+}
+
+function exportCsv(m, rows){
+  const def=M[m], keys=def.fields.map(f=>f.k);
+  const val = (f,v) => f.t==='file' ? ((fileObj(v)||{}).u||'') : f.t==='money' ? String(num(v)).replace('.',',') : v;
+  const lines=[def.fields.map(f=>f.l).join(';')].concat(rows.map(r=>def.fields.map(f=>'"'+String(val(f,r[f.k]??'')).replace(/"/g,'""')+'"').join(';')));
+  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`lifoli-${m}-${today()}.csv`; a.click();
+}
+
+/* =====================================================================
+   MODULO DI INSERIMENTO / MODIFICA
+   ===================================================================== */
+function fieldOptions(f, r){
+  if (f.t==='room'){ const rooms=(S.data.camere||[]).map(c=>c.nome).sort(); return (f.all?['Tutte']:[]).concat(rooms, f.extra||[]); }
+  if (f.t==='user') return S.team.map(u=>u.email);
+  return typeof f.o==='function' ? f.o(r) : f.o;
+}
+function inputHtml(f, r, ro){
+  const v = r[f.k] ?? '', dis = ro?'disabled':'', id='f_'+f.k;
+  if (f.t==='textarea') return `<textarea id="${id}" rows="3" ${dis}>${esc(v)}</textarea>`;
+  if (['select','room','user'].includes(f.t)){
+    const o=fieldOptions(f,r); const all = v && !o.includes(v) ? [v].concat(o) : o;
+    return `<select id="${id}" ${dis}><option value=""></option>${all.map(x=>`<option value="${esc(x)}" ${x===v?'selected':''}>${esc(f.t==='user'?userName(x):x)}</option>`).join('')}</select>`;
+  }
+  if (f.t==='bool') return `<input type="checkbox" id="${id}" ${v==='si'?'checked':''} ${dis}>`;
+  if (f.t==='file'){ const o=fileObj(v); return `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${o?`<a href="${esc(o.u)}" target="_blank">📎 ${esc(o.n)}</a>`:'<span class="muted">Nessun file</span>'}${ro?'':`<input type="file" id="${id}" style="border:0;padding:0">`}</div>`; }
+  const type = {money:'number',number:'number',date:'date',email:'email',tel:'tel'}[f.t]||'text';
+  const step = f.t==='money' ? 'step="0.01"' : f.step ? `step="${f.step}"` : '';
+  return `<input id="${id}" type="${type}" ${step} value="${esc(v)}" ${dis}>`;
+}
+function openForm(m, rec, preset){
+  const def=M[m], rw=can(m,'rw') && !def.readonly, isNew=!rec;
+  const r = rec ? {...rec} : {};
+  if (isNew){ def.fields.forEach(f=>{ if(f.def!==undefined) r[f.k]= typeof f.def==='function'?f.def():String(f.def); }); Object.assign(r, preset||{}); }
+  const draw = () => {
+    $('#modal').innerHTML = `<header><h2>${isNew?'Nuov'+(def.single.endsWith('a')||def.single.endsWith('à')?'a ':'o ')+def.single:esc(def.title.replace(/e .*$/,'').trim()==='Entrate'?'Movimento':capital(def.single))}</h2><button class="btn sm" id="x">✕</button></header>
+    <div class="body">${def.fields.map(f=>`<div class="f ${f.full||f.t==='textarea'||f.t==='file'?'full':''} ${f.t==='bool'?'chk':''}">${f.t==='bool'?inputHtml(f,r,!rw)+`<label for="f_${f.k}">${f.l}</label>`:`<label for="f_${f.k}">${f.l}${f.req?' *':''}</label>`+inputHtml(f,r,!rw)}${f.hint?`<span class="hint">${f.hint}</span>`:''}</div>`).join('')}
+    ${extraInfo(m,r)}
+    ${!isNew?`<div class="meta">Creato ${fdate(r.creato_il)} da ${esc(userName(r.creato_da))}${r.modificato_il?` · modificato ${fdate(r.modificato_il)} ${String(r.modificato_il).slice(11,16)} da ${esc(userName(r.modificato_da))}`:''}</div>`:''}</div>
+    <footer>${rw&&!isNew?'<button class="btn danger" id="del">Elimina</button>':''}${m==='prenotazioni'&&rw&&!isNew&&can('pulizie','rw')?'<button class="btn" id="mkClean">+ Pulizia al check-out</button>':''}${m==='prenotazioni'&&rw&&!isNew&&can('movimenti','rw')?'<button class="btn" id="mkIncome">Registra incasso</button>':''}<span class="sp"></span><button class="btn" id="cancel">${rw?'Annulla':'Chiudi'}</button>${rw?'<button class="btn pri" id="save">Salva</button>':''}</footer>`;
+    $('#x').onclick = $('#cancel').onclick = closeForm;
+    // campi dipendenti (categoria da tipo, ecc.)
+    def.fields.filter(f=>typeof f.o==='function').forEach(f=>{
+      const dep = def.fields.find(x=>x.k==='tipo'); if(!dep) return;
+      const el=$('#f_tipo'); if (el) el.onchange = () => { collect(def,r); if(m==='fatture') r.stato = r.tipo==='Emessa'?'Da incassare':'Da pagare'; r.categoria = fieldOptions(def.fields.find(x=>x.k==='categoria')||{o:[]},r).includes(r.categoria)?r.categoria:''; draw(); };
+    });
+    if (m==='prenotazioni'){ ['f_arrivo','f_partenza','f_camera'].forEach(k=>{ const el=$('#'+k); if(el) el.addEventListener('change',()=>{ collect(def,r); const n=nights(r.arrivo,r.partenza); const info=$('#nightsInfo'); if(info) info.innerHTML = n?`<b>${n}</b> notti`+suggestPrice(r):''; }); }); }
+    if ($('#save')) $('#save').onclick = () => save(m, def, r, isNew);
+    if ($('#del')) $('#del').onclick = async () => { if(!confirm('Eliminare definitivamente?')) return; try { await call('deleteRecord', m, r.id); S.data[m]=S.data[m].filter(x=>x.id!==r.id); closeForm(); render(); toast('Eliminato'); } catch(e){ toast(e.message,1); } };
+    if ($('#mkClean')) $('#mkClean').onclick = () => { closeForm(); openForm('pulizie', null, {data:r.partenza, camera:r.camera, tipo:'Cambio ospite', note:'Check-out '+r.ospite}); };
+    if ($('#mkIncome')) $('#mkIncome').onclick = () => { closeForm(); openForm('movimenti', null, {tipo:'Entrata', categoria:'Soggiorni', data:today(), importo:String(num(r.totale)-num(r.acconto)||num(r.totale)), descrizione:'Soggiorno '+r.ospite+' – '+r.camera+' ('+fdate(r.arrivo)+' → '+fdate(r.partenza)+')', controparte:r.ospite}); };
+  };
+  draw();
+  $('#ov').classList.add('open');
+  setTimeout(()=>{ const first=$('#modal .body input:not([type=checkbox]),#modal .body select'); first && rw && first.focus(); },50);
+}
+const capital = s => s.charAt(0).toUpperCase()+s.slice(1);
+function closeForm(){ $('#ov').classList.remove('open'); }
+$('#ov').addEventListener('mousedown', e => { if (e.target.id==='ov') closeForm(); });
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeForm(); });
+
+function extraInfo(m, r){
+  if (m==='prenotazioni'){ const n=nights(r.arrivo,r.partenza); return `<div class="meta" id="nightsInfo">${n?`<b>${n}</b> notti`+suggestPrice(r):''}</div>`; }
+  if (m==='finanziamenti' && r.importo){ const l=loan(r); return `<div class="meta">Rata ${eur(l.rata)} · rate pagate ${l.pagate||'—'} · debito residuo stimato <b>${eur(l.residuo)}</b> · ultima rata ${fdate(l.fine)||'—'}</div>`; }
+  if (m==='scadenze' && r.ricorrenza && r.ricorrenza!=='No') return `<div class="meta">Quando la segni come <b>Fatto</b>, verrà creata automaticamente la prossima scadenza (${r.ricorrenza.toLowerCase()}).</div>`;
+  return '';
+}
+function suggestPrice(r){
+  if (!r.arrivo || !r.partenza || !r.camera) return '';
+  let tot=0; const cam=(S.data.camere||[]).find(c=>c.nome===r.camera)||{};
+  for (let d=r.arrivo; d<r.partenza; d=addDays(d,1)){
+    const st=(S.data.stagioni||[]).filter(s=>s.stato==='Aperta'&&num(s.prezzo_notte)&&s.dal<=d&&d<=s.al&&(s.camera==='Tutte'||s.camera===r.camera));
+    const sp=st.find(s=>s.camera===r.camera)||st[0]; tot += sp?num(sp.prezzo_notte):num(cam.prezzo_base);
+  }
+  const warn = overlap(r);
+  return (tot?` · prezzo da listino <b>${eur(tot)}</b>`:'') + (warn?`<br><span class="neg">⚠ ${esc(warn)}</span>`:'');
+}
+function collect(def, r){
+  def.fields.forEach(f=>{
+    const el=$('#f_'+f.k); if(!el || f.t==='file') return;
+    r[f.k] = f.t==='bool' ? (el.checked?'si':'') : el.value.trim();
+  });
+}
+async function save(m, def, r, isNew){
+  collect(def, r);
+  const miss = def.fields.filter(f=>f.req && !r[f.k]).map(f=>f.l);
+  if (miss.length) return toast('Compila: '+miss.join(', '), 1);
+  if (def.before) def.before(r);
+  if (def.validate){ const w=def.validate(r); if (w && !confirm(w+'\n\nSalvare comunque?')) return; }
+  const btn=$('#save'); btn.disabled=true; btn.textContent='Salvataggio…';
+  try {
+    const fi=def.fields.find(f=>f.t==='file'), el=fi && $('#f_'+fi.k);
+    if (el && el.files && el.files[0]){
+      const file=el.files[0];
+      if (file.size > 25*1024*1024) throw new Error('File troppo grande (max 25 MB)');
+      const b64 = await new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result).split(',')[1]); fr.onerror=rej; fr.readAsDataURL(file); });
+      r[fi.k] = JSON.stringify(await call('uploadFile', m, file.name, file.type, b64));
+    }
+    const wasDone = !isNew && ((S.data[m]||[]).find(x=>x.id===r.id)||{}).stato==='Fatto';
+    const saved = await call('saveRecord', m, r);
+    S.data[m] = S.data[m]||[]; const i=S.data[m].findIndex(x=>x.id===saved.id); if(i>-1) S.data[m][i]=saved; else S.data[m].push(saved);
+    if (m==='scadenze' && saved.stato==='Fatto' && !wasDone && saved.ricorrenza && saved.ricorrenza!=='No' && !saved.prossima_creata){
+      const step={Mensile:1,Trimestrale:3,Semestrale:6,Annuale:12}[saved.ricorrenza];
+      const next={...saved, id:'', data:addMonths(saved.data, step), stato:'Da fare', allegato:'', note:saved.note, prossima_creata:''};
+      ['creato_il','creato_da','modificato_il','modificato_da'].forEach(k=>delete next[k]);
+      const n = await call('saveRecord', m, next); S.data[m].push(n);
+      saved.prossima_creata='si'; await call('saveRecord', m, saved);
+      toast('Fatto! Creata la prossima scadenza: '+fdate(n.data));
+    } else toast('Salvato');
+    if (m==='utenti' || m==='impostazioni') await reload(); else render();
+    closeForm();
+  } catch(e){ toast(e.message||String(e),1); btn.disabled=false; btn.textContent='Salva'; }
+}
+
+async function seedScadenze(){
+  const y=new Date().getFullYear(), t=today();
+  const next=(mm,dd)=>{ let s=y+'-'+pad(mm)+'-'+pad(dd); if(s<t) s=(y+1)+'-'+pad(mm)+'-'+pad(dd); return s; };
+  const list=[
+    ['Versamento IVA annuale (saldo)','Fiscale',next(3,16),'Annuale'],
+    ['Dichiarazione IVA annuale','Fiscale',next(4,30),'Annuale'],
+    ['Approvazione bilancio d\'esercizio (assemblea soci)','Contabile / societaria',next(4,30),'Annuale'],
+    ['Deposito bilancio al Registro Imprese (entro 30 gg dall\'approvazione)','Contabile / societaria',next(5,30),'Annuale'],
+    ['IMU – acconto','Tasse e tributi',next(6,16),'Annuale'],
+    ['Imposte sui redditi IRES/IRAP – saldo e 1° acconto','Fiscale',next(6,30),'Annuale'],
+    ['Diritto annuale Camera di Commercio','Contabile / societaria',next(6,30),'Annuale'],
+    ['Dichiarazione dei redditi società (Redditi SC) e IRAP','Fiscale',next(10,31),'Annuale'],
+    ['Imposte sui redditi – 2° acconto','Fiscale',next(11,30),'Annuale'],
+    ['IMU – saldo','Tasse e tributi',next(12,16),'Annuale'],
+    ['TARI – rata','Tasse e tributi',next(7,31),'Annuale'],
+    ['Versamento tassa di soggiorno al Comune di Luogosanto','Tasse e tributi',addDays(t,30),'Trimestrale'],
+    ['Comunicazione flussi turistici (ISTAT) del mese','Burocratica / permessi',addDays(t,10),'Mensile'],
+    ['Rinnovo assicurazione struttura','Assicurazioni',addDays(t,60),'Annuale'],
+    ['Controllo/revisione estintori','Sicurezza e manutenzioni obbligatorie',addDays(t,90),'Semestrale'],
+  ];
+  const have=new Set((S.data.scadenze||[]).map(s=>s.titolo));
+  const todo=list.filter(l=>!have.has(l[0]));
+  if (!todo.length) return toast('Le scadenze tipiche sono già presenti');
+  if (!confirm(`Aggiungo ${todo.length} scadenze tipiche per una S.r.l.s. con attività ricettiva.\n\nLe date sono indicative: vanno verificate con il commercialista e con il regolamento del Comune.`)) return;
+  for (const [titolo,categoria,data,ricorrenza] of todo){
+    const s=await call('saveRecord','scadenze',{titolo,categoria,data,ricorrenza,preavviso_giorni:'15',stato:'Da fare',note:'Data indicativa – verificare con il commercialista'});
+    S.data.scadenze.push(s);
+  }
+  render(); toast('Scadenze aggiunte');
+}
+
+/* =====================================================================
+   VISTA: CALENDARIO
+   ===================================================================== */
+function vCalendar(){
+  const base = S.calMonth || today().slice(0,7)+'-01';
+  const y=+base.slice(0,4), mo=+base.slice(5,7)-1, days=new Date(y,mo+1,0).getDate(), first=base, end=addDays(base,days);
+  const rooms=activeRooms(), t=today(), rw=can('prenotazioni','rw');
+  const dayList=[...Array(days)].map((_,i)=>addDays(first,i));
+  const occ=occupancy(first,end);
+  let html = header('Calendario', `<button class="btn" id="prev">‹</button><button class="btn" id="tod">Oggi</button><button class="btn" id="next">›</button>${rw?'<button class="btn pri" id="add">+ Prenotazione</button>':''}`);
+  html += `<p class="muted" style="margin-top:-6px"><b style="color:var(--ink);font-size:1.1rem">${MESI_L[mo]} ${y}</b> · occupazione ${occ.pct}% (${occ.sold}/${occ.avail} notti) · ${rw?'clicca una casella libera per creare una prenotazione':''}</p>`;
+  if (!rooms.length) html += `<div class="card empty">Aggiungi prima le camere nella sezione Camere.</div>`;
+  else {
+    html += `<div class="cal"><table><thead><tr><th class="room">Camera</th>${dayList.map(d=>{ const dt=new Date(d+'T12:00:00'), w=dt.getDay(); return `<th class="${w===0||w===6?'we':''} ${d===t?'today':''}">${['D','L','M','M','G','V','S'][w]}<br>${dt.getDate()}</th>`; }).join('')}</tr></thead><tbody>`;
+    rooms.forEach(room=>{
+      html += `<tr><td class="room">${esc(room)}</td>`;
+      dayList.forEach((d,i)=>{
+        const closed=!isOpenDay(room,d);
+        const bk=(S.data.prenotazioni||[]).filter(p=>p.camera===room&&p.stato!=='Cancellata'&&(p.arrivo===d||(i===0&&p.arrivo<d&&d<p.partenza)));
+        const bars=bk.map(p=>{ const startOff = p.arrivo<first ? -0.5 : 0; const n=nights(p.arrivo<first?first:p.arrivo, p.partenza); const visN = Math.min(n, days-i); const w=(visN+(startOff?0.5:0))*35-4;
+          return `<div class="bk ${esc(p.stato)}" data-bk="${esc(p.id)}" style="width:${w}px;${startOff?'left:0;border-top-left-radius:0;border-bottom-left-radius:0':''}" title="${esc(p.ospite)} · ${fdate(p.arrivo)} → ${fdate(p.partenza)}">${esc(p.ospite)}</div>`; }).join('');
+        html += `<td class="${closed?'closed':''}" data-room="${esc(room)}" data-day="${d}">${bars}</td>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody></table></div><div class="legend"><span><i style="background:var(--olive)"></i>Confermata</span><span><i style="background:#b7a46b"></i>Opzione</span><span><i style="background:var(--blue)"></i>Check-in</span><span><i style="background:#8d8a80"></i>Check-out</span><span><i style="background:#ebe6da"></i>Chiuso (stagioni)</span></div>`;
+  }
+  $('#view').innerHTML = html;
+  const mv = n => { S.calMonth = addMonths(first,n).slice(0,8)+'01'; vCalendar(); };
+  $('#prev').onclick=()=>mv(-1); $('#next').onclick=()=>mv(1); $('#tod').onclick=()=>{ S.calMonth=null; vCalendar(); };
+  if ($('#add')) $('#add').onclick=()=>openForm('prenotazioni');
+  document.querySelectorAll('[data-bk]').forEach(el=>el.onclick=e=>{ e.stopPropagation(); openForm('prenotazioni', S.data.prenotazioni.find(p=>p.id===el.dataset.bk)); });
+  if (rw) document.querySelectorAll('td[data-day]').forEach(td=>td.onclick=()=>openForm('prenotazioni', null, {camera:td.dataset.room, arrivo:td.dataset.day, partenza:addDays(td.dataset.day,2)}));
+}
+
+/* =====================================================================
+   VISTA: BILANCIO E REPORT
+   ===================================================================== */
+function vReport(){
+  const Y=String(S.reportYear), mv=(S.data.movimenti||[]).filter(m=>(m.data||'').startsWith(Y));
+  const years=[...new Set((S.data.movimenti||[]).map(m=>(m.data||'').slice(0,4)).concat((S.data.prenotazioni||[]).map(p=>(p.arrivo||'').slice(0,4))).filter(Boolean).concat([String(new Date().getFullYear())]))].sort().reverse();
+  const inc=mv.filter(m=>m.tipo==='Entrata'), out=mv.filter(m=>m.tipo==='Uscita');
+  const sum=a=>a.reduce((s,m)=>s+num(m.importo),0);
+  const ivaOf=m=>{ const p=num(m.iva_pct); return p ? num(m.importo) - num(m.importo)/(1+p/100) : 0; };
+  const R=sum(inc), C=sum(out), ivaD=inc.reduce((s,m)=>s+ivaOf(m),0), ivaC=out.reduce((s,m)=>s+ivaOf(m),0);
+  const byM=[...Array(12)].map((_,i)=>{ const k=Y+'-'+pad(i+1); return {i:sum(inc.filter(m=>m.data.startsWith(k))), o:sum(out.filter(m=>m.data.startsWith(k)))}; });
+  const max=Math.max(1,...byM.map(x=>Math.max(x.i,x.o)));
+  const cats={}; out.forEach(m=>cats[m.categoria||'Altro']=(cats[m.categoria||'Altro']||0)+num(m.importo));
+  const catList=Object.entries(cats).sort((a,b)=>b[1]-a[1]); const cmax=Math.max(1,...catList.map(c=>c[1]));
+  const icats={}; inc.forEach(m=>icats[m.categoria||'Altro']=(icats[m.categoria||'Altro']||0)+num(m.importo));
+  const pr=(S.data.prenotazioni||[]).filter(p=>p.stato!=='Cancellata'&&(p.arrivo||'').startsWith(Y));
+  const nn=pr.reduce((s,p)=>s+nights(p.arrivo,p.partenza),0), rev=pr.reduce((s,p)=>s+num(p.totale),0), comm=pr.reduce((s,p)=>s+num(p.commissione),0), tassa=pr.reduce((s,p)=>s+num(p.tassa_soggiorno),0);
+  const occ=occupancy(Y+'-01-01', (+Y+1)+'-01-01');
+  const byCanale={}; pr.forEach(p=>byCanale[p.canale||'—']=(byCanale[p.canale||'—']||0)+num(p.totale));
+  const rooms=activeRooms().map(r=>({r, ...occupancy(Y+'-01-01',(+Y+1)+'-01-01',r), rev:pr.filter(p=>p.camera===r).reduce((s,p)=>s+num(p.totale),0)}));
+  const debt=(S.data.finanziamenti||[]).filter(f=>f.stato!=='Estinto').reduce((s,f)=>s+loan(f).residuo,0);
+  const bilanci=(S.data.documenti||[]).filter(d=>d.categoria==='Bilanci societari');
+
+  let html = header('Bilancio e report', `<select id="yr" class="btn">${years.map(y=>`<option ${y===Y?'selected':''}>${y}</option>`).join('')}</select><button class="btn" id="print">Stampa / PDF</button>`);
+  html += `<div class="kpis">${kpi('Ricavi '+Y, eur0(R), 'IVA a debito stimata '+eur0(ivaD))}${kpi('Costi '+Y, eur0(C), 'IVA a credito stimata '+eur0(ivaC))}${kpi('Risultato di cassa', `<span class="${R-C>=0?'pos':'neg'}">${eur0(R-C)}</span>`, R?'margine '+Math.round((R-C)/R*100)+'%':'')}${kpi('Debito residuo', eur0(debt), 'mutui e finanziamenti attivi')}</div>`;
+  html += `<div class="card" style="margin-bottom:16px"><h3>Entrate e uscite per mese</h3><div class="bars">${byM.map((x,i)=>`<div class="m"><div class="pair"><div class="b in" style="height:${x.i/max*100}%" title="Entrate ${MESI[i]}: ${eur(x.i)}"></div><div class="b out" style="height:${x.o/max*100}%" title="Uscite ${MESI[i]}: ${eur(x.o)}"></div></div><span class="lab">${MESI[i]}</span></div>`).join('')}</div><div class="legend"><span><i style="background:var(--olive)"></i>Entrate</span><span><i style="background:var(--terra)"></i>Uscite</span></div></div>`;
+  html += `<div class="grid2"><div class="card"><h3>Costi per categoria</h3>${catList.length?catList.map(([c,v])=>`<div class="hbar"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${v/cmax*100}%"></div></div><span class="num" style="text-align:right">${eur0(v)}</span></div>`).join(''):'<div class="empty">Nessuna uscita registrata</div>'}</div>
+    <div class="card"><h3>Ricavi per categoria</h3>${Object.keys(icats).length?Object.entries(icats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div class="hbar"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${v/Math.max(...Object.values(icats))*100}%;background:var(--olive)"></div></div><span style="text-align:right">${eur0(v)}</span></div>`).join(''):'<div class="empty">Nessuna entrata registrata</div>'}</div></div>`;
+  if (S.data.prenotazioni){
+    html += `<div class="kpis" style="margin-top:16px">${kpi('Notti vendute', nn, pr.length+' prenotazioni')}${kpi('Occupazione', occ.pct+'%', 'sui giorni di apertura')}${kpi('Prezzo medio a notte (ADR)', eur0(nn?rev/nn:0), 'RevPAR '+eur0(occ.avail?rev/occ.avail:0))}${kpi('Commissioni OTA', eur0(comm), 'tassa di soggiorno '+eur0(tassa))}</div>`;
+    html += `<div class="grid2"><div class="card"><h3>Per camera</h3><table><thead><tr><th>Camera</th><th class="num">Notti</th><th class="num">Occupazione</th><th class="num">Fatturato</th></tr></thead><tbody>${rooms.map(x=>`<tr style="cursor:default"><td>${esc(x.r)}</td><td class="num">${x.sold}</td><td class="num">${x.pct}%</td><td class="num">${eur0(x.rev)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="card"><h3>Per canale di vendita</h3>${Object.entries(byCanale).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div class="hbar"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${v/Math.max(1,...Object.values(byCanale))*100}%;background:var(--blue)"></div></div><span style="text-align:right">${eur0(v)}</span></div>`).join('')||'<div class="empty">Nessuna prenotazione</div>'}</div></div>`;
+  }
+  if (S.data.documenti) html += `<div class="card" style="margin-top:16px"><h3>Bilanci societari depositati</h3>${bilanci.length?`<ul class="list">${bilanci.map(b=>{ const o=fileObj(b.allegato); return `<li><span class="when">${fdate(b.data)}</span><span class="grow">${esc(b.titolo)}</span>${o?`<a href="${esc(o.u)}" target="_blank">📎 Apri</a>`:''}</li>`; }).join('')}</ul>`:'<div class="empty">Carica i bilanci in Documenti → categoria "Bilanci societari".</div>'}</div>`;
+  html += `<p class="muted" style="font-size:.8rem;margin-top:14px">Il risultato è calcolato per cassa sui movimenti registrati (IVA inclusa) e l'IVA è stimata dalle aliquote inserite: è uno strumento di controllo, non sostituisce il bilancio redatto dal commercialista.</p>`;
+  $('#view').innerHTML = html;
+  $('#yr').onchange = e => { S.reportYear = e.target.value; vReport(); };
+  $('#print').onclick = () => window.print();
+}
+
+/* =====================================================================
+   VISTA: DATI STRUTTURA
+   ===================================================================== */
+function vStruttura(){
+  const rw=can('impostazioni','rw');
+  const r={...((S.data.impostazioni||[]).find(x=>x.id==='struttura')||{id:'struttura'})};
+  let html = header('Dati struttura', rw?'<button class="btn pri" id="saveS">Salva</button>':'');
+  html += `<div class="card"><div class="modal" style="box-shadow:none;width:100%"><div class="body" style="padding:0">${STRUTTURA_FIELDS.map(f=>`<div class="f ${f.full||f.t==='textarea'?'full':''}"><label for="f_${f.k}">${f.l}</label>${inputHtml(f,r,!rw)}${f.hint?`<span class="hint">${f.hint}</span>`:''}</div>`).join('')}</div></div></div>`;
+  if (S.sheetUrl) html += `<p class="muted" style="margin-top:14px">I dati sono salvati nel Google Sheet <a href="${esc(S.sheetUrl)}" target="_blank">Li Fòli – Dati gestionale</a> nel vostro Drive.</p>`;
+  $('#view').innerHTML = html;
+  if ($('#saveS')) $('#saveS').onclick = async () => {
+    STRUTTURA_FIELDS.forEach(f=>{ const el=$('#f_'+f.k); if(el) r[f.k]=el.value.trim(); });
+    try { const s=await call('saveRecord','impostazioni',r); S.data.impostazioni=[s].concat((S.data.impostazioni||[]).filter(x=>x.id!=='struttura')); toast('Dati salvati'); } catch(e){ toast(e.message,1); }
+  };
+}
+
+boot();
+</script>
+<style media="print">aside,.top button,.top select,.demo,.burger{display:none!important}.app{display:block}main{padding:0}.card{break-inside:avoid}</style>
+</body>
+</html>
