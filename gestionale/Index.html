@@ -396,7 +396,7 @@ const nights = (a,b) => (a && b) ? Math.max(0, Math.round((new Date(b+'T12:00:00
 const fdate = s => { if(!s) return ''; const p=String(s).slice(0,10).split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : s; };
 const MESI = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
 const MESI_L = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-const userName = e => (S.team.find(u => u.email===e)||{}).nome || e || '';
+const userName = e => (S.team.find(u => u.email===e)||{}).nome || (S.profiles[e]||{}).name || (BACKEND==='cloud' && e ? 'Utente' : e) || '';
 const fileObj = v => { if(!v) return null; try { const o = typeof v==='string' ? JSON.parse(v) : v; return o && o.u ? o : null; } catch(e) { return null; } };
 const can = (m, lvl='r') => S.perms[m] && (lvl==='r' || S.perms[m]==='rw');
 
@@ -420,25 +420,122 @@ function overlap(r){
   const c = (S.data.prenotazioni||[]).find(p => p.id!==r.id && p.camera===r.camera && p.stato!=='Cancellata' && p.arrivo < r.partenza && r.arrivo < p.partenza);
   return c ? `Attenzione: la camera ${r.camera} è già occupata da ${c.ospite} (${fdate(c.arrivo)} → ${fdate(c.partenza)})` : '';
 }
+function ask(msg, okLabel='Conferma'){
+  return new Promise(res => {
+    const box=document.createElement('div'); box.className='ov open'; box.style.zIndex='80'; box.style.alignItems='center';
+    box.innerHTML=`<div class="modal" style="width:min(460px,100%)"><div class="body" style="grid-template-columns:1fr;white-space:pre-line">${esc(msg)}</div><footer><span class="sp"></span><button class="btn" data-a="0">Annulla</button><button class="btn pri" data-a="1">${esc(okLabel)}</button></footer></div>`;
+    document.body.appendChild(box);
+    box.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{ box.remove(); res(b.dataset.a==='1'); });
+  });
+}
 function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='toast'+(err?' err':''); t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', err?6000:2600); }
 
 /* =====================================================================
    API: Google Apps Script oppure demo locale
    ===================================================================== */
 const IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+let BACKEND = IS_GAS ? 'gas' : 'demo';
 function call(fn, ...args){
-  if (IS_GAS) return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(e => rej(e && e.message ? e : new Error(String(e))))[fn](...args));
+  if (BACKEND==='gas') return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(e => rej(e && e.message ? e : new Error(String(e))))[fn](...args));
+  if (BACKEND==='cloud') return Cloud[fn](...args);
   return Promise.resolve().then(() => Demo[fn](...args));
 }
+const PERMS_ALL = {
+  admin:{prenotazioni:'rw',camere:'rw',stagioni:'rw',pulizie:'rw',movimenti:'rw',fatture:'rw',finanziamenti:'rw',scadenze:'rw',documenti:'rw',impostazioni:'rw',utenti:'rw',log:'r'},
+  socio:{prenotazioni:'rw',camere:'rw',stagioni:'rw',pulizie:'rw',movimenti:'rw',fatture:'rw',finanziamenti:'rw',scadenze:'rw',documenti:'rw',impostazioni:'rw',log:'r'},
+  collaboratore:{prenotazioni:'r',camere:'r',stagioni:'r',pulizie:'rw',impostazioni:'r'},
+  contabile:{movimenti:'r',fatture:'r',finanziamenti:'r',scadenze:'r',documenti:'r',impostazioni:'r',prenotazioni:'r',camere:'r',stagioni:'r'},
+};
+
+/* ---- Archivio online su Claude (capability db + user + assets) ---- */
+const Cloud = (() => {
+  let db, user, assets, myId, perms, subscribed = false;
+  const nowIso = () => new Date().toISOString().slice(0,19);
+  const newId = () => Math.random().toString(36).slice(2,8) + Date.now().toString(36);
+  const clean = o => { const r={}; Object.keys(o).forEach(k=>{ if(o[k]!==undefined && k!=='id') r[k]=o[k]===null?'':o[k]; }); return r; };
+  const col = m => m==='utenti' ? 'utenti' : 'm_'+m;
+  const need = (m,l) => { const p=perms&&perms[m]; if(!p || (l==='rw'&&p!=='rw')) throw new Error('Permesso negato per "'+m+'"'); };
+  const readAll = async path => (await db.collection(path).get()).docs.filter(d=>d.exists).map(d=>({...d.data(), id:d.id}));
+  const errMsg = e => e && e.code==='quota_exceeded' ? 'Archivio pieno: elimina qualche elemento vecchio.' : e && e.code==='invalid_argument' ? 'Non hai il permesso di salvare: chiedi accesso "Modifica" a chi ha condiviso il gestionale.' : (e && e.message) || String(e);
+  async function log(azione, modulo, r){
+    try { await db.collection('m_log').doc(newId()).set({quando:nowIso(), utente:myId, azione, modulo, record_id:r.id||'', dettaglio:String(r.titolo||r.descrizione||r.ospite||r.nome||r.numero||r.tipo||'').slice(0,120)}); } catch(e) {}
+  }
+  return {
+    async init(){
+      if (!window.claude || !window.claude.use) return false;
+      const [d,u] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+      if (!d || !u) return false;
+      db=d; user=u; assets = await window.claude.use('assets');
+      return true;
+    },
+    async bootstrap(){
+      myId = await user.id();
+      if (!myId) throw new Error('Accedi al tuo account Claude per usare il gestionale.');
+      const owner = await user.isOwner();
+      let us = await readAll('utenti');
+      let mine = us.find(u=>u.id===myId);
+      if (owner && (!mine || mine.ruolo!=='admin' || mine.attivo==='no')){
+        mine = {nome:'', ...(mine||{}), id:myId, ruolo:'admin', attivo:'si'};
+        await db.doc('utenti/'+myId).set(clean(mine));
+        us = us.filter(u=>u.id!==myId).concat([mine]);
+      }
+      if (!mine || mine.attivo==='no'){
+        try { await db.doc('accessi/'+myId).set({richiesto_il:nowIso()}); } catch(e) {}
+        throw new Error('Il tuo account non è ancora abilitato. Chiedi a chi gestisce Li Fòli di aprire "Utenti e ruoli" e cliccare "Abilita" accanto al tuo nome.');
+      }
+      perms = PERMS_ALL[mine.ruolo];
+      if (!perms) throw new Error('Ruolo non valido');
+      const data = {};
+      await Promise.all(Object.keys(perms).map(async m => { data[m] = m==='utenti' ? us : await readAll(col(m)); }));
+      if (data.log) data.log = data.log.sort((a,b)=>String(a.quando).localeCompare(b.quando)).slice(-400);
+      if (perms.utenti) data.accessi = (await readAll('accessi')).filter(a=>!us.some(u=>u.id===a.id));
+      const ids = us.map(u=>u.id).concat((data.accessi||[]).map(a=>a.id));
+      const ps = await user.profiles(ids);
+      const profiles = {}; ids.forEach(i=>profiles[i]={name:(ps[i]&&ps[i].name)||''});
+      const team = us.filter(u=>u.attivo!=='no').map(u=>({email:u.id, nome:u.nome||profiles[u.id].name||'Utente', ruolo:u.ruolo}));
+      return {user:{email:'', nome:mine.nome||profiles[myId].name||'', ruolo:mine.ruolo, id:myId}, perms, data, team, profiles};
+    },
+    subscribe(onChange){
+      if (subscribed) return; subscribed = true;
+      Object.keys(perms).forEach(m => {
+        if (m==='log' || m==='utenti') return;
+        let first = true;
+        db.collection(col(m)).onSnapshot(snap => {
+          if (first){ first=false; return; }
+          onChange(m, snap.docs.filter(d=>d.exists).map(d=>({...d.data(), id:d.id})));
+        }, () => {});
+      });
+    },
+    async saveRecord(m, r){
+      need(m,'rw'); r = {...r};
+      const isNew = !r.id;
+      if (isNew){ r.id=newId(); r.creato_il=nowIso(); r.creato_da=myId; }
+      r.modificato_il=nowIso(); r.modificato_da=myId;
+      try { await db.doc(col(m)+'/'+r.id).set(clean(r)); } catch(e){ throw new Error(errMsg(e)); }
+      if (m==='utenti') { try { await db.doc('accessi/'+r.id).delete(); } catch(e) {} }
+      log(isNew?'crea':'modifica', m, r);
+      return r;
+    },
+    async deleteRecord(m, id){
+      need(m,'rw');
+      if (m==='utenti' && id===myId) throw new Error('Non puoi eliminare il tuo stesso utente');
+      try { await db.doc(col(m)+'/'+id).delete(); } catch(e){ throw new Error(errMsg(e)); }
+      log('elimina', m, {id});
+      return true;
+    },
+    async uploadFile(m, name, type, b64){
+      need(m,'rw');
+      if (!assets) throw new Error('Per caricare file serve l\'accesso "Modifica" al gestionale.');
+      const bin = atob(b64), arr = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+      try { const res = await assets.upload(new Blob([arr], {type: type||'application/octet-stream'})); return {n:name, u:res.url, a:res.id}; }
+      catch(e){ throw new Error((e&&e.message)||'Caricamento non riuscito'); }
+    },
+  };
+})();
 
 const Demo = (() => {
   const KEY='lifoli-gestionale-demo';
-  const PERMS = {
-    admin:{prenotazioni:'rw',camere:'rw',stagioni:'rw',pulizie:'rw',movimenti:'rw',fatture:'rw',finanziamenti:'rw',scadenze:'rw',documenti:'rw',impostazioni:'rw',utenti:'rw',log:'r'},
-    socio:{prenotazioni:'rw',camere:'rw',stagioni:'rw',pulizie:'rw',movimenti:'rw',fatture:'rw',finanziamenti:'rw',scadenze:'rw',documenti:'rw',impostazioni:'rw',log:'r'},
-    collaboratore:{prenotazioni:'r',camere:'r',stagioni:'r',pulizie:'rw',impostazioni:'r'},
-    contabile:{movimenti:'r',fatture:'r',finanziamenti:'r',scadenze:'r',documenti:'r',impostazioni:'r',prenotazioni:'r',camere:'r',stagioni:'r'},
-  };
+  const PERMS = PERMS_ALL;
   let db;
   const id = () => Math.random().toString(36).slice(2,14);
   function seed(){
@@ -526,12 +623,22 @@ const Demo = (() => {
 /* =====================================================================
    STATO E ROUTING
    ===================================================================== */
-const S = { user:null, perms:{}, data:{}, team:[], view:'dashboard', f:{}, calMonth:null, reportYear:new Date().getFullYear() };
+const S = { profiles:{}, user:null, perms:{}, data:{}, team:[], view:'dashboard', f:{}, calMonth:null, reportYear:new Date().getFullYear() };
 
 async function boot(){
   try {
+    if (!IS_GAS && window.claude && window.claude.use){
+      $('#root').innerHTML = '<div class="loading">Li Fòli… connessione all\'archivio</div>';
+      if (await Cloud.init()) BACKEND = 'cloud';
+    }
     const r = await call('bootstrap');
+    if (BACKEND==='cloud') Cloud.subscribe((m, rows) => { S.data[m] = rows; if (!$('#ov').classList.contains('open') && !(document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))) render(); });
     Object.assign(S, r);
+    if (BACKEND==='cloud'){
+      M.utenti.fields = [{k:'nome',l:'Nome da mostrare',t:'text',hint:'Es. Domenico, Fratello… (se vuoto si usa il nome dell\'account)'},{k:'ruolo',l:'Ruolo',t:'select',o:['admin','socio','collaboratore','contabile'],req:1},{k:'attivo',l:'Attivo',t:'bool'},{k:'note',l:'Note',t:'textarea'}];
+      M.utenti.computed = {persona: r => (S.profiles[r.id]||{}).name || '—'};
+      M.utenti.cols = ['persona','nome','ruolo','attivo'];
+    }
     S.view = (location.hash||'#dashboard').slice(1) || 'dashboard';
     render();
   } catch(e){
@@ -657,7 +764,7 @@ function occupancy(from, to, room){
 /* =====================================================================
    VISTA: ELENCO GENERICO
    ===================================================================== */
-function colLabel(m,k){ const f=M[m].fields.find(f=>f.k===k); if(f) return f.l.replace(/ \(€\)| %/,''); return ({notti:'Notti',rata_calc:'Rata',pagate:'Rate pagate',residuo:'Residuo',fine:'Ultima rata',giorni:'Giorni'})[k]||k; }
+function colLabel(m,k){ if(k==='persona') return 'Account'; const f=M[m].fields.find(f=>f.k===k); if(f) return f.l.replace(/ \(€\)| %/,''); return ({notti:'Notti',rata_calc:'Rata',pagate:'Rate pagate',residuo:'Residuo',fine:'Ultima rata',giorni:'Giorni'})[k]||k; }
 function cell(m,k,r){
   const def=M[m], f=def.fields.find(f=>f.k===k), v = def.computed && def.computed[k] ? def.computed[k](r) : r[k];
   if (k==='giorni'){ if(v==='') return '<td></td>'; return `<td class="num"><span class="pill ${v<0?'red':v<=7?'amber':''}">${v<0?v+' (scaduta)':v}</span></td>`; }
@@ -688,11 +795,15 @@ function vList(m){
   rows.sort((a,b)=>String(a[sk]||'').localeCompare(String(b[sk]||''))*dir);
 
   const opts=k=>{ const vals=[...new Set((S.data[m]||[]).map(r=>r[k]).filter(Boolean))].sort(); return `<select data-f="${k}"><option value="">${colLabel(m,k)}: tutti</option>${vals.map(v=>`<option ${F[k]===v?'selected':''} value="${esc(v)}">${esc(k==='assegnato_a'||k==='responsabile'||k==='utente'?userName(v):v)}</option>`).join('')}</select>`; };
-  let actions = rw ? `<button class="btn pri" id="add">+ Nuov${def.single.endsWith('a')||def.single.endsWith('à')?'a':'o'} ${def.single}</button>` : '';
+  let actions = rw && !(m==='utenti' && BACKEND==='cloud') ? `<button class="btn pri" id="add">+ Nuov${def.single.endsWith('a')||def.single.endsWith('à')?'a':'o'} ${def.single}</button>` : '';
   if (m==='scadenze' && rw) actions = `<button class="btn" id="seed">Aggiungi scadenze tipiche</button>` + actions;
   if (rows.length) actions = `<button class="btn" id="csv">Esporta CSV</button>` + actions;
   let html = header(def.title, actions);
   if (def.intro) html += `<p class="muted" style="margin-top:-8px">${def.intro}</p>`;
+  if (m==='utenti' && BACKEND==='cloud'){
+    const pend=(S.data.accessi||[]);
+    html += `<div class="card" style="margin-bottom:14px"><h3>Richieste di accesso</h3>${pend.length?`<ul class="list">${pend.map(a=>`<li><span class="grow"><b>${esc((S.profiles[a.id]||{}).name||'Persona senza nome')}</b> <span class="muted">· ha aperto il gestionale il ${fdate(a.richiesto_il)}</span></span><select data-role="${esc(a.id)}">${['socio','admin','collaboratore','contabile'].map(r=>`<option>${r}</option>`).join('')}</select><button class="btn pri sm" data-enable="${esc(a.id)}">Abilita</button></li>`).join('')}</ul>`:'<div class="empty">Nessuna richiesta. Condividi il gestionale con tuo fratello (menu Condividi, livello "Modifica"): quando lo apre comparirà qui e potrai abilitarlo.</div>'}</div>`;
+  }
   if (m==='utenti') html += `<div class="card" style="margin-bottom:14px"><h3>Ruoli</h3>${Object.entries(ROLE_INFO).map(([r,d])=>`<div style="padding:3px 0">${pill('ruolo',r)} <span class="muted">${d}</span></div>`).join('')}<p class="muted" style="margin:10px 0 0;font-size:.82rem">Quando aggiungi un utente, il foglio dati e la cartella allegati vengono condivisi automaticamente con il suo account Google.</p></div>`;
   html += `<div class="toolbar"><input type="search" id="q" placeholder="Cerca…" value="${esc(F.q)}">
     ${def.dateField?`<select data-f="year"><option value="">Tutti gli anni</option>${years.map(y=>`<option ${F.year===y?'selected':''}>${y}</option>`).join('')}</select>`:''}
@@ -716,6 +827,10 @@ function vList(m){
   document.querySelectorAll('[data-f]').forEach(s => s.onchange = e => { F[s.dataset.f]=e.target.value; rerender(); });
   if ($('#showDone')) $('#showDone').onchange = e => { F.showDone=e.target.checked; rerender(); };
   if ($('#add')) $('#add').onclick = () => openForm(m);
+  document.querySelectorAll('[data-enable]').forEach(b => b.onclick = async () => {
+    const id=b.dataset.enable, ruolo=document.querySelector(`[data-role="${id}"]`).value;
+    try { await call('saveRecord','utenti',{id, nome:'', ruolo, attivo:'si'}); await reload(); toast('Utente abilitato'); } catch(e){ toast(e.message,1); }
+  });
   if ($('#seed')) $('#seed').onclick = seedScadenze;
   if ($('#csv')) $('#csv').onclick = () => exportCsv(m, rows);
   document.querySelectorAll('tbody tr[data-id]').forEach(tr => tr.onclick = () => openForm(m, (S.data[m]||[]).find(r=>r.id===tr.dataset.id)));
@@ -725,8 +840,10 @@ function exportCsv(m, rows){
   const def=M[m], keys=def.fields.map(f=>f.k);
   const val = (f,v) => f.t==='file' ? ((fileObj(v)||{}).u||'') : f.t==='money' ? String(num(v)).replace('.',',') : v;
   const lines=[def.fields.map(f=>f.l).join(';')].concat(rows.map(r=>def.fields.map(f=>'"'+String(val(f,r[f.k]??'')).replace(/"/g,'""')+'"').join(';')));
-  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`lifoli-${m}-${today()}.csv`; a.click();
+  const content='\ufeff'+lines.join('\n'), filename=`lifoli-${m}-${today()}.csv`;
+  if (BACKEND==='cloud'){ window.claude.use('downloads').then(d=>{ if(!d) return toast('Download non disponibile qui',1); return d.save({filename, data:content}).catch(e=>{ if(e&&e.code!=='declined') toast('Download non riuscito',1); }); }); return; }
+  const blob=new Blob([content],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
 }
 
 /* =====================================================================
@@ -768,7 +885,7 @@ function openForm(m, rec, preset){
     });
     if (m==='prenotazioni'){ ['f_arrivo','f_partenza','f_camera'].forEach(k=>{ const el=$('#'+k); if(el) el.addEventListener('change',()=>{ collect(def,r); const n=nights(r.arrivo,r.partenza); const info=$('#nightsInfo'); if(info) info.innerHTML = n?`<b>${n}</b> notti`+suggestPrice(r):''; }); }); }
     if ($('#save')) $('#save').onclick = () => save(m, def, r, isNew);
-    if ($('#del')) $('#del').onclick = async () => { if(!confirm('Eliminare definitivamente?')) return; try { await call('deleteRecord', m, r.id); S.data[m]=S.data[m].filter(x=>x.id!==r.id); closeForm(); render(); toast('Eliminato'); } catch(e){ toast(e.message,1); } };
+    if ($('#del')) $('#del').onclick = async () => { if(!(await ask('Eliminare definitivamente?','Elimina'))) return; try { await call('deleteRecord', m, r.id); S.data[m]=S.data[m].filter(x=>x.id!==r.id); closeForm(); render(); toast('Eliminato'); } catch(e){ toast(e.message,1); } };
     if ($('#mkClean')) $('#mkClean').onclick = () => { closeForm(); openForm('pulizie', null, {data:r.partenza, camera:r.camera, tipo:'Cambio ospite', note:'Check-out '+r.ospite}); };
     if ($('#mkIncome')) $('#mkIncome').onclick = () => { closeForm(); openForm('movimenti', null, {tipo:'Entrata', categoria:'Soggiorni', data:today(), importo:String(num(r.totale)-num(r.acconto)||num(r.totale)), descrizione:'Soggiorno '+r.ospite+' – '+r.camera+' ('+fdate(r.arrivo)+' → '+fdate(r.partenza)+')', controparte:r.ospite}); };
   };
@@ -808,7 +925,7 @@ async function save(m, def, r, isNew){
   const miss = def.fields.filter(f=>f.req && !r[f.k]).map(f=>f.l);
   if (miss.length) return toast('Compila: '+miss.join(', '), 1);
   if (def.before) def.before(r);
-  if (def.validate){ const w=def.validate(r); if (w && !confirm(w+'\n\nSalvare comunque?')) return; }
+  if (def.validate){ const w=def.validate(r); if (w && !(await ask(w+'\n\nSalvare comunque?','Salva comunque'))) return; }
   const btn=$('#save'); btn.disabled=true; btn.textContent='Salvataggio…';
   try {
     const fi=def.fields.find(f=>f.t==='file'), el=fi && $('#f_'+fi.k);
@@ -857,7 +974,7 @@ async function seedScadenze(){
   const have=new Set((S.data.scadenze||[]).map(s=>s.titolo));
   const todo=list.filter(l=>!have.has(l[0]));
   if (!todo.length) return toast('Le scadenze tipiche sono già presenti');
-  if (!confirm(`Aggiungo ${todo.length} scadenze tipiche per una S.r.l.s. con attività ricettiva.\n\nLe date sono indicative: vanno verificate con il commercialista e con il regolamento del Comune.`)) return;
+  if (!(await ask(`Aggiungo ${todo.length} scadenze tipiche per una S.r.l.s. con attività ricettiva.\n\nLe date sono indicative: vanno verificate con il commercialista e con il regolamento del Comune.`, 'Aggiungi'))) return;
   for (const [titolo,categoria,data,ricorrenza] of todo){
     const s=await call('saveRecord','scadenze',{titolo,categoria,data,ricorrenza,preavviso_giorni:'15',stato:'Da fare',note:'Data indicativa – verificare con il commercialista'});
     S.data.scadenze.push(s);
