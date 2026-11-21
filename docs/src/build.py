@@ -17,6 +17,7 @@ def tags(*xs):
 T = {}
 
 T["it"] = dict(
+    rooms_more="Nove camere in tutto, tutte con bagno privato, aria condizionata, frigobar e cassetta di sicurezza: oltre a Ginestra, Malvarosa, Euforbia ed Erica, ci sono Roverella, Quercia, Sughera, Anemone e Felce.", season="Aperto da aprile a ottobre",
     meta_title="Li Fòli – Casale di Campagna | Balaiana, Luogosanto · Gallura, Sardegna",
     meta_desc="Li Fòli è un casale di campagna in granito e calce a Balaiana, Luogosanto, nel cuore della Gallura. Camere e suite immerse tra sughere, rocce di granito e silenzio, vicino alla Costa Smeralda.",
     tagline="Casale di Campagna",
@@ -68,6 +69,7 @@ T["it"] = dict(
 )
 
 T["en"] = dict(
+    rooms_more="Nine rooms in all, each with private bathroom, air conditioning, minibar and safe: besides Ginestra, Malvarosa, Euforbia and Erica, there are Roverella, Quercia, Sughera, Anemone and Felce.", season="Open from April to October",
     meta_title="Li Fòli – Country Retreat | Balaiana, Luogosanto · Gallura, Sardinia",
     meta_desc="Li Fòli is a granite-and-lime country house in Balaiana, Luogosanto, in the heart of Gallura, Sardinia. Rooms and a suite surrounded by cork oaks, granite boulders and silence, close to the Costa Smeralda.",
     tagline="Country Retreat",
@@ -119,6 +121,7 @@ T["en"] = dict(
 )
 
 T["es"] = dict(
+    rooms_more="Nueve habitaciones en total, todas con baño privado, aire acondicionado, minibar y caja fuerte: además de Ginestra, Malvarosa, Euforbia y Erica, están Roverella, Quercia, Sughera, Anemone y Felce.", season="Abierto de abril a octubre",
     meta_title="Li Fòli – Casa rural | Balaiana, Luogosanto · Gallura, Cerdeña",
     meta_desc="Li Fòli es una casa rural de granito y cal en Balaiana, Luogosanto, en el corazón de la Gallura, Cerdeña. Habitaciones y una suite rodeadas de alcornoques, rocas de granito y silencio, cerca de la Costa Esmeralda.",
     tagline="Casa Rural",
@@ -170,6 +173,7 @@ T["es"] = dict(
 )
 
 T["de"] = dict(
+    rooms_more="Insgesamt neun Zimmer, alle mit eigenem Bad, Klimaanlage, Minibar und Safe: neben Ginestra, Malvarosa, Euforbia und Erica gibt es Roverella, Quercia, Sughera, Anemone und Felce.", season="Geöffnet von April bis Oktober",
     meta_title="Li Fòli – Landhaus | Balaiana, Luogosanto · Gallura, Sardinien",
     meta_desc="Li Fòli ist ein Landhaus aus Granit und Kalk in Balaiana, Luogosanto, im Herzen der Gallura auf Sardinien. Zimmer und eine Suite inmitten von Korkeichen, Granitfelsen und Stille, nahe der Costa Smeralda.",
     tagline="Landhaus",
